@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" width="120" height="140">
+  <!-- Pot -->
+  <path d="M35 105 L40 130 L80 130 L85 105 Z" fill="#b5651d" stroke="#8B4513" stroke-width="1.5"/>
+  <rect x="32" y="100" width="56" height="8" rx="2" fill="#c4722b" stroke="#8B4513" stroke-width="1.5"/>
+  <!-- Soil -->
+  <ellipse cx="60" cy="105" rx="24" ry="4" fill="#5c3a1e"/>
+  <!-- Trunk -->
+  <path d="M60 105 C58 95 52 90 50 80 C48 70 55 65 58 55 C59 50 60 45 60 40" fill="none" stroke="#6B4226" stroke-width="5" stroke-linecap="round"/>
+  <!-- Branch left -->
+  <path d="M54 75 C48 68 40 65 35 60" fill="none" stroke="#6B4226" stroke-width="3" stroke-linecap="round"/>
+  <!-- Branch right -->
+  <path d="M58 58 C65 52 72 50 78 48" fill="none" stroke="#6B4226" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Canopy clusters -->
+  <ellipse cx="60" cy="32" rx="16" ry="12" fill="#2d8a4e"/>
+  <ellipse cx="42" cy="38" rx="12" ry="10" fill="#34a058"/>
+  <ellipse cx="78" cy="40" rx="13" ry="10" fill="#34a058"/>
+  <ellipse cx="32" cy="54" rx="11" ry="9" fill="#2d8a4e"/>
+  <ellipse cx="52" cy="26" rx="10" ry="8" fill="#3cb868"/>
+  <ellipse cx="72" cy="30" rx="10" ry="8" fill="#3cb868"/>
+  <!-- Peppers -->
+  <g transform="translate(45,42) rotate(20)">
+    <path d="M0 0 C2 4 2 10 0 14" fill="none" stroke="#e03030" stroke-width="3" stroke-linecap="round"/>
+    <path d="M0 0 C-1 -2 1 -3 2 -2" fill="#3a7a2a" stroke="none"/>
+  </g>
+  <g transform="translate(70,35) rotate(-15)">
+    <path d="M0 0 C2 3 2 8 0 11" fill="none" stroke="#e03030" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M0 0 C-1 -2 1 -2.5 2 -1.5" fill="#3a7a2a" stroke="none"/>
+  </g>
+  <g transform="translate(34,50) rotate(30)">
+    <path d="M0 0 C1.5 3 1.5 7 0 10" fill="none" stroke="#cc2020" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M0 0 C-1 -1.5 1 -2 1.5 -1" fill="#3a7a2a" stroke="none"/>
+  </g>
+</svg>
