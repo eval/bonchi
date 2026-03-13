@@ -1,4 +1,5 @@
 require_relative "bonchi/version"
+require_relative "bonchi/colors"
 require_relative "bonchi/global_config"
 require_relative "bonchi/git"
 require_relative "bonchi/config"

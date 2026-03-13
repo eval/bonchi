@@ -3,6 +3,8 @@ require "shellwords"
 
 module Bonchi
   class Setup
+    include Colors
+
     def initialize(worktree: nil)
       @worktree = worktree || Dir.pwd
       @main_worktree = Git.main_worktree
@@ -10,11 +12,11 @@ module Bonchi
 
     def run(args = [])
       if @worktree == @main_worktree
-        abort "Error: already in the main worktree"
+        abort "#{color(:red)}Error:#{reset} already in the main worktree"
       end
 
       config = Config.from_main_worktree
-      abort "Error: .worktree.yml not found in main worktree" unless config
+      abort "#{color(:red)}Error:#{reset} .worktree.yml not found in main worktree" unless config
 
       ENV["MAIN_WORKTREE"] = @main_worktree
       ENV["WORKTREE"] = @worktree
@@ -43,7 +45,7 @@ module Bonchi
           FileUtils.cp(src, File.join(@worktree, file))
           puts "Copied #{file}"
         else
-          puts "Warning: #{file} not found in main worktree, skipping"
+          puts "#{color(:yellow)}Warning:#{reset} #{file} not found in main worktree, skipping"
         end
       end
     end
@@ -51,7 +53,7 @@ module Bonchi
     def replace_in_files(replacements)
       replacements.each do |file, entries|
         path = File.join(@worktree, file)
-        abort "Error: #{file} not found" unless File.exist?(path)
+        abort "#{color(:red)}Error:#{reset} #{file} not found" unless File.exist?(path)
 
         content = File.read(path)
         entries.each do |entry|
@@ -63,18 +65,18 @@ module Bonchi
             pattern, replacement = entry.first
             missing = "halt"
           else
-            abort "Error: invalid replace entry in #{file}: #{entry.inspect}"
+            abort "#{color(:red)}Error:#{reset} invalid replace entry in #{file}: #{entry.inspect}"
           end
 
-          expanded = replacement.gsub(/\$(\w+)/) { ENV[$1] || abort("Error: $#{$1} not set") }
+          expanded = replacement.gsub(/\$(\w+)/) { ENV[$1] || abort("#{color(:red)}Error:#{reset} $#{$1} not set") }
           regex = Regexp.new(pattern)
 
           unless content.match?(regex)
             if missing == "warn"
-              puts "Warning: pattern #{pattern} not found in #{file}, skipping"
+              puts "#{color(:yellow)}Warning:#{reset} pattern #{pattern} not found in #{file}, skipping"
               next
             else
-              abort "Error: pattern #{pattern} not found in #{file}"
+              abort "#{color(:red)}Error:#{reset} pattern #{pattern} not found in #{file}"
             end
           end
 
