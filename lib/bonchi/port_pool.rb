@@ -1,6 +1,5 @@
 require "yaml"
 require "socket"
-require "set"
 
 module Bonchi
   class PortPool
@@ -43,10 +42,10 @@ module Bonchi
     private
 
     def load_config
-      if File.exist?(@path)
-        data = YAML.safe_load_file(@path) || {}
+      data = if File.exist?(@path)
+        YAML.safe_load_file(@path) || {}
       else
-        data = {}
+        {}
       end
       pool = data["port_pool"] || {}
       @min = pool["min"] || DEFAULT_MIN
