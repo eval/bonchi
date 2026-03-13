@@ -102,15 +102,6 @@ rake
 
 Using [mise](https://mise.jdx.dev/) for env-vars is recommended.
 
-### Local install
-
-Install a dev build as `bonchi-dev` (version includes the git SHA):
-
-```bash
-rake gem:install_dev
-bonchi-dev --version  # => bonchi 0.2.0.dev.abc1234
-```
-
 ### Releasing
 
 Create a signed git tag and push:
