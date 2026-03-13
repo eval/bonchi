@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bonchi (0.1.0.dev)
+    bonchi (0.2.0.dev)
       thor (~> 1.0)
 
 GEM
@@ -92,7 +92,7 @@ DEPENDENCIES
 
 CHECKSUMS
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
-  bonchi (0.1.0.dev)
+  bonchi (0.2.0.dev)
   date (3.5.1) sha256=750d06384d7b9c15d562c76291407d89e368dda4d4fff957eb94962d325a0dc0
   erb (6.0.2) sha256=9fe6264d44f79422c87490a1558479bd0e7dad4dd0e317656e67ea3077b5242b
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
