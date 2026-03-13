@@ -6,7 +6,7 @@ module Bonchi
       return "" if ENV.key?("NO_COLOR")
 
       case name
-      when :red    then "\e[31m"
+      when :red then "\e[31m"
       when :yellow then "\e[33m"
       end
     end

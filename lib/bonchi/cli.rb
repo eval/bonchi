@@ -183,7 +183,7 @@ module Bonchi
       end
     end
 
-    WORKTREE_YML_TEMPLATE = <<~'YAML'
+    WORKTREE_YML_TEMPLATE = <<~YAML
       # Worktree configuration for bonchi.
       # See https://github.com/eval/bonchi
 
