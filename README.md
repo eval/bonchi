@@ -11,6 +11,7 @@
 <p align="center">
   <a href="https://rubygems.org/gems/bonchi"><img src="https://img.shields.io/gem/v/bonchi.svg?style=flat-square&color=blue" alt="Gem Version"></a>
   <a href="https://github.com/eval/bonchi/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/eval/bonchi/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status"></a>
+  <a href="https://rubygems.org/gems/bonchi"><img src="https://img.shields.io/gem/dt/bonchi.svg?style=flat-square&color=orange" alt="Downloads"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="License"></a>
 </p>
 
@@ -71,9 +72,12 @@ ports:
   - PORT
   - WEBPACK_PORT
 
+replace:
+  mise.toml:
+    - "^PORT=.*": "PORT=$PORT"
+
 pre_setup:
   - mise trust
-  - sed -i '' "s|^PORT=.*|PORT=$PORT|" mise.toml
 
 setup: mise exec -- bin/setup
 ```
