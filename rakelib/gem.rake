@@ -2,7 +2,7 @@ namespace :gem do
   task "write_version", [:version] do |_task, args|
     if args[:version]
       version = args[:version].split("=").last
-      version_file = File.expand_path("../../lib/app_query/version.rb", __FILE__)
+      version_file = File.expand_path("../../lib/bonchi/version.rb", __FILE__)
 
       system(<<~CMD, exception: true)
         ruby -pi -e 'gsub(/VERSION = ".*"/, %{VERSION = "#{version}"})' #{version_file}
