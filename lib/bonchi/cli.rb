@@ -22,18 +22,18 @@ module Bonchi
       existing = Git.worktree_path_for(branch)
       if existing
         puts "Worktree already exists: #{existing}"
-        puts "BONCHI_CD:#{existing}"
+        signal_cd(existing)
         return
       end
 
       Git.worktree_add_new_branch(path, branch, base)
       puts "Worktree created at: #{path}"
 
+      signal_cd(path)
+
       if options[:setup] && Config.from_main_worktree
         puts ""
         Setup.new(worktree: path).run
-      else
-        puts "BONCHI_CD:#{path}"
       end
     end
 
@@ -42,7 +42,7 @@ module Bonchi
       existing = Git.worktree_path_for(branch)
       if existing
         puts "Worktree already exists: #{existing}"
-        puts "BONCHI_CD:#{existing}"
+        signal_cd(existing)
         return
       end
 
@@ -54,7 +54,7 @@ module Bonchi
       Git.worktree_add(path, branch)
       puts "Worktree created at: #{path}"
 
-      puts "BONCHI_CD:#{path}"
+      signal_cd(path)
     end
 
     desc "pr NUMBER_OR_URL", "Checkout GitHub PR in worktree"
@@ -66,7 +66,7 @@ module Bonchi
       existing = Git.worktree_path_for(branch)
       if existing
         puts "Worktree already exists: #{existing}"
-        puts "BONCHI_CD:#{existing}"
+        signal_cd(existing)
         return
       end
 
@@ -74,12 +74,12 @@ module Bonchi
       Git.worktree_add(path, branch)
       puts "PR ##{pr_number} checked out at: #{path}"
 
-      puts "BONCHI_CD:#{path}"
+      signal_cd(path)
     end
 
-    desc "setup", "Run setup in current worktree (ports, copy, pre_setup, setup cmd)"
-    def setup
-      Setup.new.run
+    desc "setup [-- ARGS...]", "Run setup in current worktree (ports, copy, pre_setup, setup cmd)"
+    def setup(*args)
+      Setup.new.run(args)
     end
 
     desc "list", "List all worktrees"
@@ -113,6 +113,15 @@ module Bonchi
 
     private
 
+    def signal_cd(path)
+      cd_file = ENV["BONCHI_CD_FILE"]
+      if cd_file
+        File.write(cd_file, path)
+      else
+        puts "cd #{path}"
+      end
+    end
+
     def extract_pr_number(input)
       case input
       when %r{^https://github.com/.*/pull/(\d+)}
@@ -126,13 +135,12 @@ module Bonchi
 
     SHELL_ENV = <<~'SHELL'
       bonchi() {
-          local output
-          output=$(command bonchi "$@")
+          local bonchi_cd_file="${TMPDIR:-/tmp}/bonchi_cd.$$"
+          BONCHI_CD_FILE="$bonchi_cd_file" command bonchi "$@"
           local exit_code=$?
-          echo "$output"
-          if [ $exit_code -eq 0 ]; then
-              local cd_path=$(echo "$output" | grep "^BONCHI_CD:" | cut -d: -f2-)
-              [ -n "$cd_path" ] && cd "$cd_path"
+          if [ $exit_code -eq 0 ] && [ -f "$bonchi_cd_file" ]; then
+              cd "$(cat "$bonchi_cd_file")"
+              rm -f "$bonchi_cd_file"
           fi
           return $exit_code
       }
