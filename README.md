@@ -82,10 +82,40 @@ setup: mise exec -- bin/setup
 |-----|-------------|
 | `copy` | Files copied from main worktree before setup |
 | `ports` | Env var names — unique ports allocated from a global pool |
-| `pre_setup` | Commands run before the setup command (port env vars are available) |
+| `replace` | Regex replacements in files — env vars (`$VAR`) are expanded (see below) |
+| `pre_setup` | Commands run before the setup command (env vars are available) |
 | `setup` | The setup command to run (default: `bin/setup`) |
 
 `bonchi create` auto-runs setup when `.worktree.yml` exists. Skip with `--no-setup`.
+
+### Replace
+
+Use `replace` to do regex-based find-and-replace in files. Env vars (`$VAR`) are expanded in replacement values.
+
+```yaml
+replace:
+  # Short form
+  mise.toml:
+    - "^PORT=.*": "PORT=$PORT"
+  # Full form (with optional missing: warn, default: halt)
+  .env.local:
+    - match: "^DATABASE_URL=.*"
+      with: "DATABASE_URL=postgres:///myapp_$WORKTREE_BRANCH_SLUG"
+      missing: warn
+```
+
+### Environment variables
+
+The following env vars are available in `replace` values and `pre_setup` commands:
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `$WORKTREE_MAIN` | `/Users/me/projects/myapp` | Full path to the main worktree |
+| `$WORKTREE_LINKED` | `/Users/me/dev/worktrees/myapp/my-feature` | Full path to the linked worktree |
+| `$WORKTREE_ROOT` | `/Users/me/dev/worktrees` | Root directory for all worktrees |
+| `$WORKTREE_BRANCH` | `feat/new-login` | Branch name |
+| `$WORKTREE_BRANCH_SLUG` | `feat_new_login` | Branch name with non-alphanumeric chars replaced by `_` |
+| `$PORT`, ... | `4012` | Any port names listed under `ports` |
 
 ## Global config
 

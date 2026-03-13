@@ -4,6 +4,11 @@ module Bonchi
   module Git
     module_function
 
+    def current_branch(worktree = nil)
+      dir = worktree || Dir.pwd
+      `git -C #{dir.shellescape} rev-parse --abbrev-ref HEAD`.strip
+    end
+
     def repo_name
       url = `git remote get-url origin 2>/dev/null`.strip
       base = url.empty? ? `git rev-parse --show-toplevel`.strip : url
