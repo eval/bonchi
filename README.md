@@ -1,11 +1,27 @@
-# Bonchi
-
 <p align="center">
   <img src="bonchi.svg" alt="Bonchi" width="120">
 </p>
 
-Git worktree manager inspired by [tree-me](https://github.com/haacked/dotfiles/blob/main/bin/README-tree-me.md).
-Create, switch, and remove worktrees with automatic port allocation, file copying, and project setup.
+<h1 align="center">Bonchi</h1>
+
+<p align="center">
+  <strong>Git worktree manager with automatic port allocation, file copying, and project setup</strong>
+</p>
+
+<p align="center">
+  <a href="https://rubygems.org/gems/bonchi"><img src="https://img.shields.io/gem/v/bonchi.svg?style=flat-square&color=blue" alt="Gem Version"></a>
+  <a href="https://github.com/eval/bonchi/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/eval/bonchi/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="License"></a>
+</p>
+
+<p align="center">
+  <a href="#install">Install</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#project-config">Project Config</a> •
+  <a href="#global-config">Global Config</a>
+</p>
+
+Inspired by [tree-me](https://github.com/haacked/dotfiles/blob/main/bin/README-tree-me.md).
 
 ## Install
 
@@ -26,6 +42,7 @@ This gives you auto-cd (jumps into the worktree after create/switch/pr) and tab 
 ## Usage
 
 ```sh
+bonchi init                       # Generate a .worktree.yml in current project
 bonchi create my-feature          # New branch + worktree off default base
 bonchi create my-feature develop  # New branch off develop
 bonchi switch existing-branch     # Existing branch → new worktree
@@ -36,6 +53,8 @@ bonchi remove my-feature          # Remove a worktree
 bonchi prune                      # Clean up stale admin files
 bonchi setup                      # Run setup in current worktree
 ```
+
+Run `bonchi help <command>` for detailed info on any command.
 
 Worktrees are created at `~/dev/worktrees/<repo>/<branch>`. Customize via global config or `WORKTREE_ROOT` env var (env var takes precedence).
 
@@ -67,8 +86,6 @@ setup: mise exec -- bin/setup
 | `setup` | The setup command to run (default: `bin/setup`) |
 
 `bonchi create` auto-runs setup when `.worktree.yml` exists. Skip with `--no-setup`.
-
-## Port allocation
 
 ## Global config
 
