@@ -23,6 +23,7 @@ module Bonchi
 
       allocate_ports(config.ports) if config.ports.any?
       copy_files(config.copy)
+      replace_in_files(config.replace) if config.replace.any?
       run_pre_setup(config.pre_setup)
       exec_setup(config.setup, args)
     end
@@ -44,6 +45,43 @@ module Bonchi
         else
           puts "Warning: #{file} not found in main worktree, skipping"
         end
+      end
+    end
+
+    def replace_in_files(replacements)
+      replacements.each do |file, entries|
+        path = File.join(@worktree, file)
+        abort "Error: #{file} not found" unless File.exist?(path)
+
+        content = File.read(path)
+        entries.each do |entry|
+          if entry.is_a?(Hash) && entry.key?("match")
+            pattern = entry["match"]
+            replacement = entry["with"]
+            missing = entry["missing"] || "halt"
+          elsif entry.is_a?(Hash)
+            pattern, replacement = entry.first
+            missing = "halt"
+          else
+            abort "Error: invalid replace entry in #{file}: #{entry.inspect}"
+          end
+
+          expanded = replacement.gsub(/\$(\w+)/) { ENV[$1] || abort("Error: $#{$1} not set") }
+          regex = Regexp.new(pattern)
+
+          unless content.match?(regex)
+            if missing == "warn"
+              puts "Warning: pattern #{pattern} not found in #{file}, skipping"
+              next
+            else
+              abort "Error: pattern #{pattern} not found in #{file}"
+            end
+          end
+
+          content = content.gsub(regex, expanded)
+          puts "Replaced #{pattern} in #{file}"
+        end
+        File.write(path, content)
       end
     end
 

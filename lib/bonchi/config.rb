@@ -2,12 +2,13 @@ require "yaml"
 
 module Bonchi
   class Config
-    attr_reader :copy, :ports, :pre_setup, :setup
+    attr_reader :copy, :ports, :replace, :pre_setup, :setup
 
     def initialize(path)
       data = YAML.load_file(path)
       @copy = Array(data["copy"])
       @ports = Array(data["ports"])
+      @replace = data["replace"] || {}
       @pre_setup = Array(data["pre_setup"])
       @setup = data["setup"] || "bin/setup"
     end
