@@ -98,6 +98,22 @@ module Bonchi
       signal_cd(path)
     end
 
+    desc "init", "Generate a .worktree.yml in the current project"
+    long_desc <<~DESC
+      Generate a .worktree.yml config file in the current directory with
+      sensible defaults. Edit the file to customize which files to copy,
+      which ports to allocate, and what setup command to run.
+    DESC
+    def init
+      path = File.join(Dir.pwd, ".worktree.yml")
+      if File.exist?(path)
+        abort "Error: .worktree.yml already exists"
+      end
+
+      File.write(path, WORKTREE_YML_TEMPLATE)
+      puts "Created #{path}"
+    end
+
     desc "setup [-- ARGS...]", "Run setup in current worktree (ports, copy, pre_setup, setup cmd)"
     def setup(*args)
       Setup.new.run(args)
@@ -166,6 +182,23 @@ module Bonchi
         abort "Error: Invalid PR number or URL: #{input}"
       end
     end
+
+    WORKTREE_YML_TEMPLATE = <<~'YAML'
+      # Files to copy from the main worktree before setup.
+      # copy:
+      #   - .env.local
+
+      # Env var names to allocate unique ports for (from global pool).
+      # ports:
+      #   - PORT
+
+      # Commands to run before the setup command (port env vars are available).
+      # pre_setup:
+      #   - sed -i '' "s|^PORT=.*|PORT=$PORT|" .env.local
+
+      # The setup command to run (default: bin/setup).
+      setup: bin/setup
+    YAML
 
     SHELL_ENV = <<~'SHELL'
       bonchi() {
