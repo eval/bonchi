@@ -4,7 +4,8 @@
   <img src="bonchi.svg" alt="Bonchi" width="120">
 </p>
 
-Git worktree manager. Create, switch, and remove worktrees with automatic port allocation, file copying, and project setup.
+Git worktree manager inspired by [tree-me](https://github.com/haacked/dotfiles/blob/main/bin/README-tree-me.md).
+Create, switch, and remove worktrees with automatic port allocation, file copying, and project setup.
 
 ## Install
 
@@ -36,7 +37,7 @@ bonchi prune                      # Clean up stale admin files
 bonchi setup                      # Run setup in current worktree
 ```
 
-Worktrees are created at `~/dev/worktrees/<repo>/<branch>`. Set `WORKTREE_ROOT` to customize.
+Worktrees are created at `~/dev/worktrees/<repo>/<branch>`. Customize via global config or `WORKTREE_ROOT` env var (env var takes precedence).
 
 ## Project config
 
@@ -69,7 +70,25 @@ setup: mise exec -- bin/setup
 
 ## Port allocation
 
-Ports are allocated from a global pool (default 4000–5000) and stored in `~/.bonchi.yml` (or `$XDG_CONFIG_HOME/bonchi/config.yml`). Stale allocations for removed worktrees are pruned automatically.
+## Global config
+
+Settings are stored in `~/.bonchi.yml` (or `$XDG_CONFIG_HOME/bonchi/config.yml`):
+
+```yaml
+worktree_root: ~/worktrees
+
+port_pool:
+  min: 4000
+  max: 5000
+```
+
+| Key | Description |
+|-----|-------------|
+| `worktree_root` | Where worktrees are created (default: `~/dev/worktrees`) |
+| `port_pool.min` | Minimum port number (default: 4000) |
+| `port_pool.max` | Maximum port number (default: 5000) |
+
+Stale port allocations for removed worktrees are pruned automatically.
 
 ## License
 

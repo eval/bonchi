@@ -8,7 +8,7 @@ module Bonchi
     DEFAULT_MAX = 5000
 
     def initialize
-      @path = global_config_path
+      @path = GlobalConfig.config_path
       load_config
     end
 
@@ -41,17 +41,6 @@ module Bonchi
     end
 
     private
-
-    def global_config_path
-      xdg = ENV["XDG_CONFIG_HOME"]
-      if xdg && !xdg.empty?
-        dir = File.join(xdg, "bonchi")
-        FileUtils.mkdir_p(dir)
-        File.join(dir, "config.yml")
-      else
-        File.expand_path("~/.bonchi.yml")
-      end
-    end
 
     def load_config
       if File.exist?(@path)

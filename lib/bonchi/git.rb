@@ -2,8 +2,6 @@ require "shellwords"
 
 module Bonchi
   module Git
-    WORKTREE_ROOT = ENV.fetch("WORKTREE_ROOT", File.join(Dir.home, "dev", "worktrees"))
-
     module_function
 
     def repo_name
@@ -60,7 +58,7 @@ module Bonchi
     end
 
     def worktree_dir(branch)
-      File.join(WORKTREE_ROOT, repo_name, branch)
+      File.join(GlobalConfig.new.worktree_root, repo_name, branch)
     end
   end
 end
