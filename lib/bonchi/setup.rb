@@ -18,8 +18,11 @@ module Bonchi
       config = Config.from_main_worktree
       abort "#{color(:red)}Error:#{reset} .worktree.yml not found in main worktree" unless config
 
-      ENV["MAIN_WORKTREE"] = @main_worktree
-      ENV["WORKTREE"] = @worktree
+      ENV["WORKTREE_MAIN"] = @main_worktree
+      ENV["WORKTREE_LINKED"] = @worktree
+      ENV["WORKTREE_BRANCH"] = Git.current_branch(@worktree)
+      ENV["WORKTREE_BRANCH_SLUG"] = ENV["WORKTREE_BRANCH"].gsub(/[^a-zA-Z0-9_]/, "_")
+      ENV["WORKTREE_ROOT"] ||= GlobalConfig.new.worktree_root
 
       puts "Setting up worktree from: #{@main_worktree}"
 
