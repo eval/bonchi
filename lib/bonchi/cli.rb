@@ -183,7 +183,10 @@ module Bonchi
       end
     end
 
-    WORKTREE_YML_TEMPLATE = <<~'YAML'
+    WORKTREE_YML_TEMPLATE = <<~YAML
+      # Worktree configuration for bonchi.
+      # See https://github.com/eval/bonchi
+
       # Files to copy from the main worktree before setup.
       # copy:
       #   - .env.local
@@ -192,9 +195,21 @@ module Bonchi
       # ports:
       #   - PORT
 
+      # Regex replacements in copied files. Env vars ($VAR) are expanded.
+      # Short form:
+      # replace:
+      #   .env.local:
+      #     - "^PORT=.*": "PORT=$PORT"
+      # Full form (with optional missing: warn, default: halt):
+      # replace:
+      #   .env.local:
+      #     - match: "^PORT=.*"
+      #       with: "PORT=$PORT"
+      #       missing: warn
+
       # Commands to run before the setup command (port env vars are available).
       # pre_setup:
-      #   - sed -i '' "s|^PORT=.*|PORT=$PORT|" .env.local
+      #   - echo "preparing..."
 
       # The setup command to run (default: bin/setup).
       setup: bin/setup
