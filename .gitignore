@@ -6,6 +6,8 @@
 /pkg/
 /spec/reports/
 /tmp/
+/_irbrc
+/mise.local.toml
 
 # rspec failure tracking
 .rspec_status
