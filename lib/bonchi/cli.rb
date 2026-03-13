@@ -14,6 +14,13 @@ module Bonchi
     map "-v" => :version
 
     desc "create BRANCH [BASE]", "Create new branch + worktree"
+    long_desc <<~DESC
+      Create a new branch and worktree. BASE defaults to the repository's default branch
+      (e.g. main). If a worktree for BRANCH already exists, switches to it instead.
+
+      When a .worktree.yml exists in the main worktree, setup runs automatically
+      (copy files, allocate ports, run pre_setup and setup commands). Skip with --no-setup.
+    DESC
     option :setup, type: :boolean, default: true, desc: "Run setup after creating worktree"
     def create(branch, base = nil)
       base ||= Git.default_base_branch
@@ -38,6 +45,13 @@ module Bonchi
     end
 
     desc "switch BRANCH", "Switch to existing branch in worktree"
+    long_desc <<~DESC
+      Create a worktree for an existing branch and cd into it.
+      If a worktree for BRANCH already exists, switches to it instead.
+
+      The branch must already exist locally or on the remote.
+      To create a new branch, use `bonchi create` instead.
+    DESC
     def switch(branch)
       existing = Git.worktree_path_for(branch)
       if existing
@@ -58,6 +72,13 @@ module Bonchi
     end
 
     desc "pr NUMBER_OR_URL", "Checkout GitHub PR in worktree"
+    long_desc <<~DESC
+      Fetch a GitHub pull request and check it out in a new worktree.
+      Accepts a PR number (e.g. 123) or a full GitHub PR URL.
+
+      The worktree branch will be named pr-<number>.
+      If the worktree already exists, switches to it instead.
+    DESC
     def pr(input)
       pr_number = extract_pr_number(input)
       branch = "pr-#{pr_number}"
@@ -88,6 +109,12 @@ module Bonchi
     end
 
     desc "remove BRANCH", "Remove a worktree"
+    long_desc <<~DESC
+      Remove a worktree and its directory. Refuses to remove worktrees
+      with uncommitted changes or untracked files (use `git worktree remove --force` to override).
+
+      Aliases: rm
+    DESC
     def remove(branch)
       path = Git.worktree_path_for(branch)
       abort "Error: No worktree found for branch: #{branch}" unless path
@@ -97,6 +124,13 @@ module Bonchi
     end
 
     desc "prune", "Prune stale worktree admin files"
+    long_desc <<~DESC
+      Clean up stale worktree tracking data. Git internally tracks worktrees in
+      .git/worktrees/. When a worktree directory is deleted manually (e.g. rm -rf)
+      instead of via `bonchi remove`, the tracking data becomes stale.
+
+      This runs `git worktree prune` to remove those orphaned entries.
+    DESC
     def prune
       Git.worktree_prune
       puts "Pruned stale worktree administrative files"
