@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bonchi (0.1.0)
+    bonchi (0.1.0.dev)
       thor (~> 1.0)
 
 GEM

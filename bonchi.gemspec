@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.description = "Manage git worktrees with automatic port allocation, file copying, and setup commands"
   spec.homepage = "https://github.com/gertgoet/bonchi"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.0"
+  spec.required_ruby_version = ">= 3.3"
 
   spec.files = Dir["lib/**/*.rb", "exe/*", "LICENSE.txt"]
   spec.bindir = "exe"

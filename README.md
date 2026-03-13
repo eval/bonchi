@@ -90,6 +90,37 @@ port_pool:
 
 Stale port allocations for removed worktrees are pruned automatically.
 
+## Development
+
+```bash
+# Setup
+bin/setup  # Make sure it exits with code 0
+
+# Run tests
+rake
+```
+
+Using [mise](https://mise.jdx.dev/) for env-vars is recommended.
+
+### Releasing
+
+Create a signed git tag and push:
+
+```bash
+# Regular release
+git tag -s 1.2.3 -m "Release 1.2.3"
+
+# Prerelease
+git tag -s 1.2.3.rc1 -m "Release 1.2.3.rc1"
+
+git push origin --tags
+
+# then change version.rb for the next dev-cycle
+VERSION = "1.2.4.dev"
+```
+
+CI will build, sign (Sigstore attestation), push to RubyGems, and create a GitHub release.
+
 ## License
 
 MIT
