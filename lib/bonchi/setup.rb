@@ -60,6 +60,7 @@ module Bonchi
           next
         end
 
+        FileUtils.mkdir_p(File.dirname(dest))
         FileUtils.rm_rf(dest) if File.exist?(dest) || File.symlink?(dest)
         FileUtils.ln_s(src, dest)
         puts "Linked #{file} -> #{src}"
@@ -69,8 +70,10 @@ module Bonchi
     def copy_files(files)
       files.each do |file|
         src = File.join(@main_worktree, file)
+        dest = File.join(@worktree, file)
         if File.exist?(src)
-          FileUtils.cp(src, File.join(@worktree, file))
+          FileUtils.mkdir_p(File.dirname(dest))
+          FileUtils.cp(src, dest)
           puts "Copied #{file}"
         else
           puts "#{color(:yellow)}Warning:#{reset} #{file} not found in main worktree, skipping"
