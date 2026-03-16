@@ -127,16 +127,18 @@ module Bonchi
     desc "remove BRANCH", "Remove a worktree"
     long_desc <<~DESC
       Remove a worktree and its directory. Refuses to remove worktrees
-      with uncommitted changes or untracked files (use `git worktree remove --force` to override).
+      with uncommitted changes or untracked files unless --force is used.
 
       Aliases: rm
     DESC
+    option :force, type: :boolean, default: false, desc: "Force removal even with uncommitted changes"
     def remove(branch)
       path = Git.worktree_path_for(branch)
       abort "Error: No worktree found for branch: #{branch}" unless path
 
-      Git.worktree_remove(path)
+      Git.worktree_remove(path, force: options[:force])
       puts "Removed worktree: #{path}"
+      signal_cd(Git.main_worktree)
     end
 
     desc "prune", "Prune stale worktree admin files"

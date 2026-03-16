@@ -50,8 +50,11 @@ module Bonchi
       system("git", "worktree", "add", path, "-b", branch, base) || abort("Failed to add worktree")
     end
 
-    def worktree_remove(path)
-      system("git", "worktree", "remove", path) || abort("Failed to remove worktree")
+    def worktree_remove(path, force: false)
+      cmd = ["git", "worktree", "remove"]
+      cmd << "--force" if force
+      cmd << path
+      system(*cmd) || abort("Failed to remove worktree")
     end
 
     def worktree_prune
