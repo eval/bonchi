@@ -26,8 +26,17 @@ module Bonchi
 
       puts "Setting up worktree from: #{@main_worktree}"
 
-      allocate_ports(config.ports) if config.ports.any?
       copy_files(config.copy)
+      link_files(config.link)
+
+      # Prefer linked worktree's .worktree.yml if it was copied or already exists
+      linked_config = Config.from_worktree(@worktree)
+      if linked_config
+        puts "Using .worktree.yml from linked worktree"
+        config = linked_config
+      end
+
+      allocate_ports(config.ports) if config.ports.any?
       replace_in_files(config.replace) if config.replace.any?
       run_pre_setup(config.pre_setup)
       exec_setup(config.setup, args)
@@ -39,6 +48,22 @@ module Bonchi
       pool = PortPool.new
       ports = pool.allocate(@worktree, port_names)
       ports.each { |name, port| ENV[name] = port.to_s }
+    end
+
+    def link_files(files)
+      files.each do |file|
+        src = File.join(@main_worktree, file)
+        dest = File.join(@worktree, file)
+
+        unless File.exist?(src)
+          puts "#{color(:yellow)}Warning:#{reset} #{file} not found in main worktree, skipping"
+          next
+        end
+
+        FileUtils.rm_rf(dest) if File.exist?(dest) || File.symlink?(dest)
+        FileUtils.ln_s(src, dest)
+        puts "Linked #{file} -> #{src}"
+      end
     end
 
     def copy_files(files)

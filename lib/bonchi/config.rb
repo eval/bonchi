@@ -4,9 +4,9 @@ module Bonchi
   class Config
     include Colors
 
-    KNOWN_KEYS = %w[copy ports replace pre_setup setup].freeze
+    KNOWN_KEYS = %w[copy link ports replace pre_setup setup].freeze
 
-    attr_reader :copy, :ports, :replace, :pre_setup, :setup
+    attr_reader :copy, :link, :ports, :replace, :pre_setup, :setup
 
     def initialize(path)
       data = YAML.load_file(path)
@@ -15,6 +15,7 @@ module Bonchi
       unknown.each { |k| warn "#{color(:yellow)}Warning:#{reset} unknown key '#{k}' in .worktree.yml, ignoring" }
 
       @copy = Array(data["copy"])
+      @link = Array(data["link"])
       @ports = Array(data["ports"])
       @replace = data["replace"] || {}
       @pre_setup = Array(data["pre_setup"])
@@ -24,8 +25,11 @@ module Bonchi
     end
 
     def self.from_main_worktree
-      main = Git.main_worktree
-      path = File.join(main, ".worktree.yml")
+      from_worktree(Git.main_worktree)
+    end
+
+    def self.from_worktree(dir)
+      path = File.join(dir, ".worktree.yml")
       return nil unless File.exist?(path)
 
       new(path)
