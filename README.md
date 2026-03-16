@@ -68,6 +68,10 @@ copy:
   - mise.toml
   - .env.local
 
+link:
+  - node_modules
+  - vendor/bundle
+
 ports:
   - PORT
   - WEBPACK_PORT
@@ -85,6 +89,7 @@ setup: mise exec -- bin/setup
 | Key | Description |
 |-----|-------------|
 | `copy` | Files copied from main worktree before setup |
+| `link` | Files symlinked from main worktree (useful for large directories like `node_modules`) |
 | `ports` | Env var names — unique ports allocated from a global pool |
 | `replace` | Regex replacements in files — env vars (`$VAR`) are expanded (see below) |
 | `pre_setup` | Commands run before the setup command (env vars are available) |

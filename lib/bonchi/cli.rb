@@ -193,6 +193,10 @@ module Bonchi
       # copy:
       #   - .env.local
 
+      # Files to symlink from the main worktree (useful for large directories).
+      # link:
+      #   - node_modules
+
       # Env var names to allocate unique ports for (from global pool).
       # ports:
       #   - PORT
