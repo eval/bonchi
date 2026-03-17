@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### ✨ Features
+
+- `min_version` in `.worktree.yml` — abort with upgrade message if bonchi is too old
+
 ## 0.4.0
 
 ### ✨ Features
