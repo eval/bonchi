@@ -51,6 +51,7 @@ jobs:
 
           - **RubyGems**: https://rubygems.org/gems/bonchi/versions/${version}
           - **Changelog**: https://github.com/eval/bonchi/blob/main/CHANGELOG.md#${version//./}
+          - **Attestation**: `gem fetch bonchi -v ${version} && gh attestation verify bonchi-${version}.gem --owner eval`
           EOF
 
       # GH Attestations
