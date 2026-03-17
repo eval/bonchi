@@ -10,13 +10,22 @@ module Bonchi
       @main_worktree = Git.main_worktree
     end
 
-    def run(args = [])
+    STEPS = %w[copy link ports replace pre_setup setup].freeze
+
+    def run(args = [], upto: nil)
+      if upto && !STEPS.include?(upto)
+        abort "#{color(:red)}Error:#{reset} unknown step '#{upto}'. Valid steps: #{STEPS.join(", ")}"
+      end
+
       if @worktree == @main_worktree
         abort "#{color(:red)}Error:#{reset} already in the main worktree"
       end
 
       config = Config.from_main_worktree
       abort "#{color(:red)}Error:#{reset} .worktree.yml not found in main worktree" unless config
+
+      last_step = upto || STEPS.last
+      run_steps = STEPS[0..STEPS.index(last_step)]
 
       ENV["WORKTREE_MAIN"] = @main_worktree
       ENV["WORKTREE_LINKED"] = @worktree
@@ -26,8 +35,8 @@ module Bonchi
 
       puts "Setting up worktree from: #{@main_worktree}"
 
-      copy_files(config.copy)
-      link_files(config.link)
+      copy_files(config.copy) if run_steps.include?("copy")
+      link_files(config.link) if run_steps.include?("link")
 
       # Prefer linked worktree's .worktree.yml if it was copied or already exists
       linked_config = Config.from_worktree(@worktree)
@@ -36,10 +45,10 @@ module Bonchi
         config = linked_config
       end
 
-      allocate_ports(config.ports) if config.ports.any?
-      replace_in_files(config.replace) if config.replace.any?
-      run_pre_setup(config.pre_setup)
-      exec_setup(config.setup, args)
+      allocate_ports(config.ports) if run_steps.include?("ports") && config.ports.any?
+      replace_in_files(config.replace) if run_steps.include?("replace") && config.replace.any?
+      run_pre_setup(config.pre_setup) if run_steps.include?("pre_setup")
+      exec_setup(config.setup, args) if run_steps.include?("setup")
     end
 
     private

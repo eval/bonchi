@@ -19,9 +19,11 @@ module Bonchi
       (e.g. main). If a worktree for BRANCH already exists, switches to it instead.
 
       When a .worktree.yml exists in the main worktree, setup runs automatically
-      (copy files, allocate ports, run pre_setup and setup commands). Skip with --no-setup.
+      (copy files, allocate ports, run pre_setup and setup commands).
+      Skip with --no-setup, or use --upto STEP to run only up to a specific step.
     DESC
     option :setup, type: :boolean, default: true, desc: "Run setup after creating worktree"
+    option :upto, type: :string, desc: "Run setup steps up to and including STEP (copy, link, ports, replace, pre_setup, setup)"
     def create(branch, base = nil)
       base ||= Git.default_base_branch
       path = Git.worktree_dir(branch)
@@ -40,7 +42,7 @@ module Bonchi
 
       if options[:setup] && Config.from_main_worktree
         puts ""
-        Setup.new(worktree: path).run
+        Setup.new(worktree: path).run(upto: options[:upto])
       end
     end
 
@@ -115,8 +117,9 @@ module Bonchi
     end
 
     desc "setup [-- ARGS...]", "Run setup in current worktree (ports, copy, pre_setup, setup cmd)"
+    option :upto, type: :string, desc: "Run steps up to and including STEP (copy, link, ports, replace, pre_setup, setup)"
     def setup(*args)
-      Setup.new.run(args)
+      Setup.new.run(args, upto: options[:upto])
     end
 
     desc "list", "List all worktrees"
