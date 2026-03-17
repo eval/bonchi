@@ -3,6 +3,7 @@
 ### ✨ Features
 
 - `min_version` in `.worktree.yml` — abort with upgrade message if bonchi is too old
+- [GitHub attestations](https://github.com/eval/bonchi/attestations) for published gems — verify with `gem fetch bonchi -v <version> && gh attestation verify bonchi-<version>.gem --owner eval`
 
 ## 0.4.0
 
