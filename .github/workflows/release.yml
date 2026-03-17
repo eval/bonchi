@@ -14,6 +14,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      attestations: write
 
     steps:
       # Set up
@@ -39,6 +40,12 @@ jobs:
       # Release
       - uses: rubygems/release-gem@1c162a739e8b4cb21a676e97b087e8268d8fc40b # v1.1.2
 
+      # GH Attestations
+      - uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-path: pkg/*.gem
+
+      # GH Release
       - name: Create tag and GitHub release
         run: |
           version="${{ steps.version.outputs.version }}"
