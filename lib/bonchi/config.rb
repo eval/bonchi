@@ -4,7 +4,7 @@ module Bonchi
   class Config
     include Colors
 
-    KNOWN_KEYS = %w[copy link ports replace pre_setup setup].freeze
+    KNOWN_KEYS = %w[min_version copy link ports replace pre_setup setup].freeze
 
     attr_reader :copy, :link, :ports, :replace, :pre_setup, :setup
 
@@ -13,6 +13,8 @@ module Bonchi
 
       unknown = data.keys - KNOWN_KEYS
       unknown.each { |k| warn "#{color(:yellow)}Warning:#{reset} unknown key '#{k}' in .worktree.yml, ignoring" }
+
+      check_min_version!(data["min_version"]) if data["min_version"]
 
       @copy = Array(data["copy"])
       @link = Array(data["link"])
@@ -36,6 +38,14 @@ module Bonchi
     end
 
     private
+
+    def check_min_version!(min_version)
+      required = Gem::Version.new(min_version.to_s)
+      current = Gem::Version.new(VERSION)
+      return if current >= required
+
+      abort "#{color(:red)}Error:#{reset} .worktree.yml requires bonchi >= #{required}, but you have #{current}. Run `gem install bonchi` to upgrade."
+    end
 
     def validate!
       unless @replace.is_a?(Hash)

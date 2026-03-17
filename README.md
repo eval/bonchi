@@ -64,6 +64,8 @@ Worktrees are created at `~/dev/worktrees/<repo>/<branch>`. Customize via global
 Drop a `.worktree.yml` in your project root:
 
 ```yaml
+min_version: 0.4.0
+
 copy:
   - mise.toml
   - .env.local
@@ -88,6 +90,7 @@ setup: mise exec -- bin/setup
 
 | Key | Description |
 |-----|-------------|
+| `min_version` | Minimum bonchi version required (aborts with upgrade message if not met) |
 | `copy` | Files copied from main worktree before setup |
 | `link` | Files symlinked from main worktree (useful for large directories like `node_modules`) |
 | `ports` | Env var names — unique ports allocated from a global pool |

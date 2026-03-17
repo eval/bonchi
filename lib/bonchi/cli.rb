@@ -189,6 +189,9 @@ module Bonchi
       # Worktree configuration for bonchi.
       # See https://github.com/eval/bonchi
 
+      # Minimum bonchi version required.
+      # min_version: #{VERSION}
+
       # Files to copy from the main worktree before setup.
       # copy:
       #   - .env.local
