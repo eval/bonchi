@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### ✨ Features
+
+- `--upto STEP` for `bonchi setup` and `bonchi create` — run setup steps only up to a specific step (copy, link, ports, replace, pre_setup, setup)
+
 ## 0.5.0
 
 ### ✨ Features
