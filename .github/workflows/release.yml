@@ -40,6 +40,17 @@ jobs:
       # Release
       - uses: rubygems/release-gem@1c162a739e8b4cb21a676e97b087e8268d8fc40b # v1.1.2
 
+      # Job Summary
+      - name: Summary
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## 🌳 Bonchi ${version}
+
+          - **RubyGems**: https://rubygems.org/gems/bonchi/versions/${version}
+          - **Changelog**: https://github.com/eval/bonchi/blob/main/CHANGELOG.md#${version//./}
+          EOF
+
       # GH Attestations
       - uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
