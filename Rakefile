@@ -1,4 +1,7 @@
 require "bundler/gem_tasks"
+
+# Bundler hardcodes a "v" prefix in version_tag — override to use bare version.
+Bundler::GemHelper.instance.define_singleton_method(:version_tag) { version.to_s }
 require "rake/testtask"
 
 Rake::TestTask.new(:test) do |t|
