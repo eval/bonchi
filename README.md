@@ -160,22 +160,11 @@ Using [mise](https://mise.jdx.dev/) for env-vars is recommended.
 
 ### Releasing
 
-Create a signed git tag and push:
-
-```bash
-# Regular release
-git tag -s 1.2.3 -m "Release 1.2.3"
-
-# Prerelease
-git tag -s 1.2.3.rc1 -m "Release 1.2.3.rc1"
-
-git push origin --tags
-
-# then change version.rb for the next dev-cycle
-VERSION = "1.2.4.dev"
-```
-
-CI will build, sign (Sigstore attestation), push to RubyGems, and create a GitHub release.
+1. Set the version in `lib/bonchi/version.rb` and commit
+2. Run the release workflow manually from GitHub Actions
+   - Publishes to RubyGems (with Sigstore attestation)
+   - Creates git tag and GitHub release after successful publish
+3. Update `version.rb` to the next dev version (e.g. `"1.2.4.dev"`)
 
 ## License
 

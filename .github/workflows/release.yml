@@ -1,9 +1,7 @@
 name: Release gem
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,35 +29,37 @@ jobs:
           bundler-cache: true
           ruby-version: ruby
 
+      # Read version from version.rb
+      - name: Get version
+        id: version
+        run: |
+          version=$(ruby -r ./lib/bonchi/version -e 'puts Bonchi::VERSION')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       # Release
-      - name: Release
-        run: |
-          # Writing version.rb changes the Gemfile.lock which
-          # halts subsequent rake tasks when in frozen mode
-          bundle config set frozen false
-          bin/rake gem:write_version[${{ github.ref_name }}]
       - uses: rubygems/release-gem@1c162a739e8b4cb21a676e97b087e8268d8fc40b # v1.1.2
-      - name: Create GitHub release
+
+      - name: Create tag and GitHub release
         run: |
-          version="${{ github.ref_name }}"
+          version="${{ steps.version.outputs.version }}"
           dot_count=$(echo "$version" | tr -cd '.' | wc -c)
-          anchor="${version//./}"
+
+          git tag "$version"
+          git push origin "$version"
 
           read -r -d '' notes <<EOF || true
           ## ✨ Bonchi ${version} 🌳
           A git worktree manager.
 
           **Rubygems**: https://rubygems.org/gems/bonchi/versions/${version}
-          **Changelog**: https://github.com/eval/bonchi/blob/main/CHANGELOG.md#${anchor}
+          **Changelog**: https://github.com/eval/bonchi/blob/main/CHANGELOG.md#${version//./}
           EOF
 
-          prerelease_flag=""
           if [[ "$dot_count" -gt 2 ]]; then
-            gh release create "$version" --prerelease --verify-tag --generate-notes
+            gh release create "$version" --prerelease --generate-notes
           else
-            gh release create "$version" --verify-tag --generate-notes --notes "$notes"
+            gh release create "$version" --generate-notes --notes "$notes"
           fi
 
         env:
-          # classic token (https://github.com/settings/tokens) with repo-scope
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
