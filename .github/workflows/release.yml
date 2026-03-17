@@ -47,12 +47,12 @@ jobs:
         run: |
           version="${{ steps.version.outputs.version }}"
           version_anchor="${version//./}"
-          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## 🌳 Bonchi $VERSION
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## 🌳 Bonchi ${version}
 
-          - **RubyGems**: https://rubygems.org/gems/bonchi/versions/$VERSION
-          - **Changelog**: https://github.com/eval/bonchi/blob/main/CHANGELOG.md#$VERSION_ANCHOR
-          - **Attestation**: `gem fetch bonchi -v $VERSION && gh attestation verify bonchi-$VERSION.gem --owner eval`
+          - **RubyGems**: https://rubygems.org/gems/bonchi/versions/${version}
+          - **Changelog**: https://github.com/eval/bonchi/blob/main/CHANGELOG.md#${version_anchor}
+          - **Attestation**: \`gem fetch bonchi -v ${version} && gh attestation verify bonchi-${version}.gem --owner eval\`
           EOF
 
       # GH Attestations
