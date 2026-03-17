@@ -60,13 +60,10 @@ jobs:
           subject-path: pkg/*.gem
 
       # GH Release
-      - name: Create tag and GitHub release
+      - name: Create GitHub release
         run: |
           version="${{ steps.version.outputs.version }}"
           dot_count=$(echo "$version" | tr -cd '.' | wc -c)
-
-          git tag "$version"
-          git push origin "$version"
 
           read -r -d '' notes <<EOF || true
           ## ✨ Bonchi ${version} 🌳
