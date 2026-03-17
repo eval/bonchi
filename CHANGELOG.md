@@ -1,5 +1,17 @@
 ## [Unreleased]
 
+## 0.4.0
+
+### ✨ Features
+
+- `link` directive in `.worktree.yml` — symlink files/directories from the main worktree
+- `bonchi remove --force` — force removal of worktrees with uncommitted changes
+
+### 🐛 Fixes
+
+- Ensure parent directories exist before copying/linking files
+- `cd` back to main worktree after removing a worktree
+
 ## 0.3.0
 
 ### ✨ Features
