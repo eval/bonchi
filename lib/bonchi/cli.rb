@@ -323,7 +323,7 @@ module Bonchi
               COMPREPLY=()
               cur="${COMP_WORDS[COMP_CWORD]}"
               prev="${COMP_WORDS[COMP_CWORD-1]}"
-              commands="create switch sw pr setup list ls remove rm prune shellenv help"
+              commands="create switch sw pr setup list ls remove rm rmf rmrf prune shellenv help"
 
               if [ $COMP_CWORD -eq 1 ]; then
                   COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
@@ -331,7 +331,7 @@ module Bonchi
               fi
 
               case "$prev" in
-                  switch|sw|remove|rm)
+                  switch|sw|remove|rm|rmf|rmrf)
                       local branches
                       branches=$(git worktree list 2>/dev/null | sed -n 's/.*\[\([^]]*\)\].*/\1/p' | tail -n +2)
                       COMPREPLY=( $(compgen -W "$branches" -- "$cur") )
@@ -354,8 +354,10 @@ module Bonchi
                   'setup:Run setup in current worktree'
                   'list:List all worktrees'
                   'ls:List all worktrees'
-                  'remove:Remove a worktree'
-                  'rm:Remove a worktree'
+                  'remove:Remove a worktree (and merged branch)'
+                  'rm:Remove a worktree (and merged branch)'
+                  'rmf:Force-remove a worktree (and merged branch)'
+                  'rmrf:Force-remove a worktree and branch'
                   'prune:Prune stale worktree admin files'
                   'shellenv:Output shell function for auto-cd'
               )
@@ -364,7 +366,7 @@ module Bonchi
                   _describe 'command' commands
               elif (( CURRENT == 3 )); then
                   case "$words[2]" in
-                      switch|sw|remove|rm)
+                      switch|sw|remove|rm|rmf|rmrf)
                           branches=(${(f)"$(git worktree list 2>/dev/null | sed -n 's/.*\[\([^]]*\)\].*/\1/p' | tail -n +1)"})
                           _describe 'branch' branches
                           ;;
