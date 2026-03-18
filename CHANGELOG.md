@@ -1,7 +1,18 @@
 ## [Unreleased]
 
+## 0.6.0
+
 ### ✨ Features
 
+- `bonchi list` — annotate worktrees with `dirty` and `merged` status, show `~` for home directory
+- `bonchi remove` — automatically delete merged branches on worktree removal
+- `rmf` — force-remove a worktree (and merged branch)
+- `rmrf` — force-remove a worktree and delete branch regardless of merge status
+- `bonchi switch -c` — create a new branch (like `git switch -c`)
+- `bonchi create` falls back to existing branch instead of erroring
+- `bonchi switch`, `bonchi pr` — run setup automatically when `.worktree.yml` exists
+- `merged` detection checks both local and remote base branch
+- Shell completions for `rmf`, `rmrf` (bash and zsh)
 - `--upto STEP` for `bonchi setup` and `bonchi create` — run setup steps only up to a specific step (copy, link, ports, replace, pre_setup, setup)
 
 ## 0.5.0
