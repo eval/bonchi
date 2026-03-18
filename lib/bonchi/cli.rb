@@ -44,10 +44,10 @@ module Bonchi
 
       path = Git.worktree_dir(branch)
 
-      if options[:c]
+      if options[:c] && !Git.branch_exists?(branch)
         base = options[:base] || Git.default_base_branch
         Git.worktree_add_new_branch(path, branch, base)
-      elsif Git.branch_exists?(branch)
+      elsif options[:c] || Git.branch_exists?(branch)
         Git.worktree_add(path, branch)
       else
         abort "Error: Branch '#{branch}' does not exist\nUse 'bonchi switch -c #{branch}' to create a new branch"
