@@ -15,20 +15,25 @@ module Bonchi
     map "--version" => :version
     map "-v" => :version
 
-    desc "create BRANCH [BASE]", "Create new branch + worktree"
+    desc "switch BRANCH", "Switch to branch in worktree"
     long_desc <<~DESC
-      Create a new branch and worktree. BASE defaults to the repository's default branch
-      (e.g. main). If a worktree for BRANCH already exists, switches to it instead.
+      Create a worktree for a branch and cd into it.
+      If a worktree for BRANCH already exists, switches to it instead.
 
-      When a .worktree.yml exists in the main worktree, setup runs automatically
-      (copy files, allocate ports, run pre_setup and setup commands).
+      Use -c to create a new branch (like git switch -c). Use --base to specify
+      the base branch (defaults to the repository's default branch, e.g. main).
+
+      When a .worktree.yml exists in the main worktree, setup runs automatically.
       Skip with --no-setup, or use --upto STEP to run only up to a specific step.
+
+      Aliases: sw, create (implies -c)
     DESC
+    option :c, type: :boolean, default: false, desc: "Create a new branch"
+    option :base, type: :string, desc: "Base branch for -c (default: repository default branch)"
     option :setup, type: :boolean, default: true, desc: "Run setup after creating worktree"
     option :upto, type: :string, desc: "Run setup steps up to and including STEP (copy, link, ports, replace, pre_setup, setup)"
-    def create(branch, base = nil)
-      base ||= Git.default_base_branch
-      path = Git.worktree_dir(branch)
+    def switch(branch)
+      abort "Error: --base requires -c flag" if options[:base] && !options[:c]
 
       existing = Git.worktree_path_for(branch)
       if existing
@@ -37,14 +42,18 @@ module Bonchi
         return
       end
 
-      if Git.branch_exists?(branch)
-        Git.worktree_add(path, branch)
-        puts "Worktree created for existing branch at: #{path}"
-      else
+      path = Git.worktree_dir(branch)
+
+      if options[:c]
+        base = options[:base] || Git.default_base_branch
         Git.worktree_add_new_branch(path, branch, base)
-        puts "Worktree created at: #{path}"
+      elsif Git.branch_exists?(branch)
+        Git.worktree_add(path, branch)
+      else
+        abort "Error: Branch '#{branch}' does not exist\nUse 'bonchi switch -c #{branch}' to create a new branch"
       end
 
+      puts "Worktree created at: #{path}"
       signal_cd(path)
 
       if options[:setup] && Config.from_main_worktree
@@ -53,41 +62,11 @@ module Bonchi
       end
     end
 
-    desc "switch BRANCH", "Switch to existing branch in worktree"
-    long_desc <<~DESC
-      Create a worktree for an existing branch and cd into it.
-      If a worktree for BRANCH already exists, switches to it instead.
-
-      The branch must already exist locally or on the remote.
-      To create a new branch, use `bonchi create` instead.
-
-      When a .worktree.yml exists in the main worktree, setup runs automatically.
-      Skip with --no-setup, or use --upto STEP to run only up to a specific step.
-    DESC
+    desc "create BRANCH [BASE]", "Create new branch + worktree (alias for switch -c)"
     option :setup, type: :boolean, default: true, desc: "Run setup after creating worktree"
     option :upto, type: :string, desc: "Run setup steps up to and including STEP (copy, link, ports, replace, pre_setup, setup)"
-    def switch(branch)
-      existing = Git.worktree_path_for(branch)
-      if existing
-        puts "Worktree already exists: #{existing}"
-        signal_cd(existing)
-        return
-      end
-
-      unless Git.branch_exists?(branch)
-        abort "Error: Branch '#{branch}' does not exist\nUse 'bonchi create #{branch}' to create a new branch"
-      end
-
-      path = Git.worktree_dir(branch)
-      Git.worktree_add(path, branch)
-      puts "Worktree created at: #{path}"
-
-      signal_cd(path)
-
-      if options[:setup] && Config.from_main_worktree
-        puts ""
-        Setup.new(worktree: path).run(upto: options[:upto])
-      end
+    def create(branch, base = nil)
+      invoke :switch, [branch], c: true, base: base, setup: options[:setup], upto: options[:upto]
     end
 
     desc "pr NUMBER_OR_URL", "Checkout GitHub PR in worktree"
@@ -363,9 +342,9 @@ module Bonchi
           _bonchi_complete_zsh() {
               local -a commands branches
               commands=(
-                  'create:Create new branch + worktree'
-                  'switch:Switch to existing branch in worktree'
-                  'sw:Switch to existing branch in worktree'
+                  'create:Create new branch + worktree (alias for switch -c)'
+                  'switch:Switch to branch in worktree (-c to create)'
+                  'sw:Switch to branch in worktree (-c to create)'
                   'pr:Checkout GitHub PR in worktree'
                   'setup:Run setup in current worktree'
                   'list:List all worktrees'
