@@ -169,15 +169,16 @@ Using [mise](https://mise.jdx.dev/) for env-vars is recommended.
 1. Update `lib/bonchi/version.rb`  
    ```
    bin/rake 'gem:write_version[0.5.0]'
-   # commit & push
+   # commit&push
+   # check CI
    ```
-1. Release workflow from GitHub Actions...
-   - ...publishes to RubyGems (with Sigstore attestation)
-   - ...creates git GitHub release after successful publish
 1. Tag
    ```
    gem_push=no bin/rake release
    ```
+1. Release workflow from GitHub Actions...
+   - ...publishes to RubyGems (with Sigstore attestation)
+   - ...creates git GitHub release after successful publish
 1. Update `version.rb` for next dev-cycle
    ```
    bin/rake 'gem:write_version[0.6.0.dev]'
