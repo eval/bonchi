@@ -37,8 +37,13 @@ module Bonchi
         return
       end
 
-      Git.worktree_add_new_branch(path, branch, base)
-      puts "Worktree created at: #{path}"
+      if Git.branch_exists?(branch)
+        Git.worktree_add(path, branch)
+        puts "Worktree created for existing branch at: #{path}"
+      else
+        Git.worktree_add_new_branch(path, branch, base)
+        puts "Worktree created at: #{path}"
+      end
 
       signal_cd(path)
 
