@@ -43,16 +43,19 @@ This gives you auto-cd (jumps into the worktree after create/switch/pr) and tab 
 ## Usage
 
 ```sh
-bonchi init                       # Generate a .worktree.yml in current project
-bonchi create my-feature          # New branch + worktree off default base
-bonchi create my-feature develop  # New branch off develop
-bonchi switch existing-branch     # Existing branch → new worktree
-bonchi pr 123                     # Checkout PR #123
-bonchi pr https://github.com/org/repo/pull/123
-bonchi list                       # List all worktrees
-bonchi remove my-feature          # Remove a worktree
-bonchi prune                      # Clean up stale admin files
-bonchi setup                      # Run setup in current worktree
+  bonchi init                  # Generate a .worktree.yml in the current project
+  bonchi create BRANCH [BASE]  # Create new branch + worktree (alias for switch -c)
+  bonchi pr NUMBER_OR_URL      # Checkout GitHub PR in worktree
+  bonchi switch BRANCH         # Switch to branch in worktree
+  bonchi remove BRANCH         # Remove a worktree (and merged branch)
+  bonchi rmf BRANCH            # Force-remove a worktree (and merged branch)
+  bonchi rmrf BRANCH           # Force-remove a worktree and branch
+  bonchi list                  # List all worktrees
+  bonchi setup [-- ARGS...]    # Run setup in current worktree (ports, copy, pre_setup, setup cmd)
+  bonchi shellenv              # Output shell function for auto-cd + completions
+  bonchi prune                 # Prune stale worktree admin files
+  bonchi version               # Print version
+  bonchi help [COMMAND]        # Describe available commands or one specific command
 ```
 
 Run `bonchi help <command>` for detailed info on any command.
@@ -166,15 +169,16 @@ Using [mise](https://mise.jdx.dev/) for env-vars is recommended.
 1. Update `lib/bonchi/version.rb`  
    ```
    bin/rake 'gem:write_version[0.5.0]'
-   # commit & push
+   # commit&push
+   # check CI
    ```
-1. Release workflow from GitHub Actions...
-   - ...publishes to RubyGems (with Sigstore attestation)
-   - ...creates git GitHub release after successful publish
 1. Tag
    ```
    gem_push=no bin/rake release
    ```
+1. Release workflow from GitHub Actions...
+   - ...publishes to RubyGems (with Sigstore attestation)
+   - ...creates git GitHub release after successful publish
 1. Update `version.rb` for next dev-cycle
    ```
    bin/rake 'gem:write_version[0.6.0.dev]'
