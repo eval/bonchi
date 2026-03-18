@@ -69,6 +69,10 @@ module Bonchi
       system("git", "merge-base", "--is-ancestor", branch, into)
     end
 
+    def delete_branch(branch)
+      system("git", "branch", "-d", branch) || abort("Failed to delete branch: #{branch}")
+    end
+
     def fetch_pr(pr_number)
       system("git", "fetch", "origin", "pull/#{pr_number}/head:pr-#{pr_number}")
     end

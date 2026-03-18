@@ -125,6 +125,12 @@ module Bonchi
     end
 
     desc "list", "List all worktrees"
+    long_desc <<~DESC
+      List all worktrees. Non-main branches are annotated with:
+
+      \x5  dirty   — has uncommitted changes or untracked files
+      \x5  merged  — branch has been merged into the default branch
+    DESC
     def list
       lines = Git.worktree_list
       base = Git.default_base_branch
@@ -164,6 +170,9 @@ module Bonchi
       Remove a worktree and its directory. Refuses to remove worktrees
       with uncommitted changes or untracked files unless --force is used.
 
+      If the branch has been merged into the default branch, it is
+      automatically deleted. Unmerged branches are kept.
+
       Aliases: rm
     DESC
     option :force, type: :boolean, default: false, desc: "Force removal even with uncommitted changes"
@@ -173,6 +182,12 @@ module Bonchi
 
       Git.worktree_remove(path, force: options[:force])
       puts "Removed worktree: #{path}"
+
+      if Git.merged?(branch)
+        Git.delete_branch(branch)
+        puts "Deleted merged branch: #{branch}"
+      end
+
       signal_cd(Git.main_worktree)
     end
 
