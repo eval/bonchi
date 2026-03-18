@@ -66,7 +66,8 @@ module Bonchi
     end
 
     def merged?(branch, into: default_base_branch)
-      system("git", "merge-base", "--is-ancestor", branch, into)
+      system("git", "merge-base", "--is-ancestor", branch, into) ||
+        system("git", "merge-base", "--is-ancestor", branch, "origin/#{into}")
     end
 
     def delete_branch(branch, force: false)
