@@ -165,7 +165,7 @@ module Bonchi
       end
     end
 
-    desc "remove BRANCH", "Remove a worktree"
+    desc "remove BRANCH", "Remove a worktree (and merged branch)"
     long_desc <<~DESC
       Remove a worktree and its directory. Refuses to remove worktrees
       with uncommitted changes or untracked files unless --force is used.
@@ -173,22 +173,21 @@ module Bonchi
       If the branch has been merged into the default branch, it is
       automatically deleted. Unmerged branches are kept.
 
-      Aliases: rm
+      Aliases: rm, rmf (force), rmrf (force + delete unmerged branch)
     DESC
     option :force, type: :boolean, default: false, desc: "Force removal even with uncommitted changes"
     def remove(branch)
-      path = Git.worktree_path_for(branch)
-      abort "Error: No worktree found for branch: #{branch}" unless path
+      remove_worktree(branch, force: options[:force], delete_branch: :merged)
+    end
 
-      Git.worktree_remove(path, force: options[:force])
-      puts "Removed worktree: #{path}"
+    desc "rmf BRANCH", "Force-remove a worktree (and merged branch)"
+    def rmf(branch)
+      remove_worktree(branch, force: true, delete_branch: :merged)
+    end
 
-      if Git.merged?(branch)
-        Git.delete_branch(branch)
-        puts "Deleted merged branch: #{branch}"
-      end
-
-      signal_cd(Git.main_worktree)
+    desc "rmrf BRANCH", "Force-remove a worktree and branch"
+    def rmrf(branch)
+      remove_worktree(branch, force: true, delete_branch: :always)
     end
 
     desc "prune", "Prune stale worktree admin files"
@@ -214,6 +213,27 @@ module Bonchi
     map "rm" => :remove
 
     private
+
+    def remove_worktree(branch, force:, delete_branch:)
+      path = Git.worktree_path_for(branch)
+      abort "Error: No worktree found for branch: #{branch}" unless path
+
+      Git.worktree_remove(path, force: force)
+      puts "Removed worktree: #{path}"
+
+      case delete_branch
+      when :always
+        Git.delete_branch(branch, force: true)
+        puts "Deleted branch: #{branch}"
+      when :merged
+        if Git.merged?(branch)
+          Git.delete_branch(branch)
+          puts "Deleted merged branch: #{branch}"
+        end
+      end
+
+      signal_cd(Git.main_worktree)
+    end
 
     def signal_cd(path)
       cd_file = ENV["BONCHI_CD_FILE"]
