@@ -217,6 +217,8 @@ module Bonchi
     map "ls" => :list
     map "rm" => :remove
 
+    remove_command :tree
+
     private
 
     def remove_worktree(branch, force:, delete_branch:)
