@@ -61,6 +61,14 @@ module Bonchi
       system("git", "worktree", "prune")
     end
 
+    def clean?(worktree)
+      `git -C #{worktree.shellescape} status --porcelain`.strip.empty?
+    end
+
+    def merged?(branch, into: default_base_branch)
+      system("git", "merge-base", "--is-ancestor", branch, into)
+    end
+
     def fetch_pr(pr_number)
       system("git", "fetch", "origin", "pull/#{pr_number}/head:pr-#{pr_number}")
     end

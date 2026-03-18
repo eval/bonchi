@@ -2,6 +2,8 @@ require "thor"
 
 module Bonchi
   class CLI < Thor
+    include Colors
+
     def self.exit_on_failure?
       true
     end
@@ -124,7 +126,37 @@ module Bonchi
 
     desc "list", "List all worktrees"
     def list
-      Git.worktree_list.each { |line| puts line }
+      lines = Git.worktree_list
+      base = Git.default_base_branch
+      home = Dir.home
+
+      lines.each do |line|
+        branch = line[/\[([^\]]+)\]/, 1]
+        path = line.split(/\s+/).first
+        line = line.sub(home, "~")
+
+        unless branch
+          puts line
+          next
+        end
+
+        if branch == base
+          puts line
+          next
+        end
+
+        merged = Git.merged?(branch, into: base)
+        clean = Git.clean?(path)
+        tags = []
+        tags << "#{color(:yellow)}dirty#{reset}" unless clean
+        tags << "#{color(:green)}merged#{reset}" if merged
+
+        if tags.any?
+          puts "#{line}  #{tags.join(" ")}"
+        else
+          puts line
+        end
+      end
     end
 
     desc "remove BRANCH", "Remove a worktree"
