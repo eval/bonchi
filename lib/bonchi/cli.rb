@@ -60,7 +60,12 @@ module Bonchi
 
       The branch must already exist locally or on the remote.
       To create a new branch, use `bonchi create` instead.
+
+      When a .worktree.yml exists in the main worktree, setup runs automatically.
+      Skip with --no-setup, or use --upto STEP to run only up to a specific step.
     DESC
+    option :setup, type: :boolean, default: true, desc: "Run setup after creating worktree"
+    option :upto, type: :string, desc: "Run setup steps up to and including STEP (copy, link, ports, replace, pre_setup, setup)"
     def switch(branch)
       existing = Git.worktree_path_for(branch)
       if existing
@@ -78,12 +83,18 @@ module Bonchi
       puts "Worktree created at: #{path}"
 
       signal_cd(path)
+
+      if options[:setup] && Config.from_main_worktree
+        puts ""
+        Setup.new(worktree: path).run(upto: options[:upto])
+      end
     end
 
     desc "pr NUMBER_OR_URL", "Checkout GitHub PR in worktree"
     long_desc <<~DESC
-      Fetch a GitHub pull request and check it out in a new worktree.
+      Fetch a GitHub pull request and switch to it in a new worktree.
       Accepts a PR number (e.g. 123) or a full GitHub PR URL.
+      Like `bonchi switch`, but fetches the PR first.
 
       The worktree branch will be named pr-<number>.
       If the worktree already exists, switches to it instead.
