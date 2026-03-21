@@ -1,3 +1,3 @@
 module Bonchi
-  VERSION = "0.6.0.rc3"
+  VERSION = "0.6.0"
 end
