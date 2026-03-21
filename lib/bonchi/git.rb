@@ -66,12 +66,20 @@ module Bonchi
     end
 
     def merged?(branch, into: default_base_branch)
-      system("git", "merge-base", "--is-ancestor", branch, into) ||
-        system("git", "merge-base", "--is-ancestor", branch, "origin/#{into}")
+      locally_merged?(branch, into: into) ||
+        remotely_merged?(branch, into: into)
+    end
+
+    def locally_merged?(branch, into: default_base_branch)
+      system("git", "merge-base", "--is-ancestor", branch, into)
+    end
+
+    def remotely_merged?(branch, into: default_base_branch)
+      system("git", "merge-base", "--is-ancestor", branch, "origin/#{into}")
     end
 
     def delete_branch(branch, force: false)
-      flag = force ? "-D" : "-d"
+      flag = (force || !locally_merged?(branch)) ? "-D" : "-d"
       system("git", "branch", flag, branch) || abort("Failed to delete branch: #{branch}")
     end
 
