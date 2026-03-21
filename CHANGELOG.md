@@ -4,6 +4,7 @@
 
 ### ✨ Features
 
+- `bonchi rmf|rmrf` delete branch when locally or remotely merged
 - `bonchi list` — annotate worktrees with `dirty` and `merged` status, show `~` for home directory
 - `bonchi remove` — automatically delete merged branches on worktree removal
 - `rmf` — force-remove a worktree (and merged branch)
