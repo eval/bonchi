@@ -97,6 +97,7 @@ module Bonchi
 
       Git.fetch_pr(pr_number)
       Git.worktree_add(path, branch)
+      Git.set_pr_upstream(pr_number)
       puts "PR ##{pr_number} checked out at: #{path}"
 
       signal_cd(path)

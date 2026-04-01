@@ -87,6 +87,15 @@ module Bonchi
       system("git", "fetch", "origin", "pull/#{pr_number}/head:pr-#{pr_number}")
     end
 
+    def set_pr_upstream(pr_number)
+      head_ref = `gh pr view #{pr_number} --json headRefName -q .headRefName`.strip
+      return if head_ref.empty?
+
+      if system("git", "branch", "--set-upstream-to", "origin/#{head_ref}", "pr-#{pr_number}")
+        puts "Upstream set to origin/#{head_ref}"
+      end
+    end
+
     def worktree_dir(branch)
       File.join(GlobalConfig.new.worktree_root, repo_name, branch)
     end
