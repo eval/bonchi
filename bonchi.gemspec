@@ -14,6 +14,8 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "https://github.com/eval/bonchi/blob/main/CHANGELOG.md"
 
+  spec.metadata["rubygems_mfa_required"] = "true"
+
   spec.files = Dir["lib/**/*.rb", "exe/*", "LICENSE.txt"]
   spec.bindir = "exe"
   spec.executables = ["bonchi"]

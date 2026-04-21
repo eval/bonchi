@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### ✨ Features
+
+- MFA required to publish this gem
+
 ## 0.6.0
 
 ### ✨ Features
