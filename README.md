@@ -81,7 +81,7 @@ ports:
   - PORT
   - WEBPACK_PORT
 
-replace:
+edit:
   mise.toml:
     - "^PORT=.*": "PORT=$PORT"
 
@@ -97,31 +97,41 @@ setup: mise exec -- bin/setup
 | `copy` | Files copied from main worktree before setup |
 | `link` | Files symlinked from main worktree (useful for large directories like `node_modules`) |
 | `ports` | Env var names — unique ports allocated from a global pool |
-| `replace` | Regex replacements in files — env vars (`$VAR`) are expanded (see below) |
+| `edit` | Edits applied to files: `replace`, `append`, `upsert` — env vars (`$VAR`) are expanded (see below). Aliased as `replace` for backwards compatibility. |
 | `pre_setup` | Commands run before the setup command (env vars are available) |
 | `setup` | The setup command to run (default: `bin/setup`) |
 
 `bonchi create` auto-runs setup when `.worktree.yml` exists. Skip with `--no-setup`.
 
-### Replace
+### Edit
 
-Use `replace` to do regex-based find-and-replace in files. Env vars (`$VAR`) are expanded in replacement values.
+Use `edit` to modify files during setup. Three actions are available; entries run in order, so you can interleave them. Env vars (`$VAR`) are expanded in replacement values.
 
 ```yaml
-replace:
-  # Short form
+edit:
   mise.toml:
+    # Replace — short form
     - "^PORT=.*": "PORT=$PORT"
-  # Full form (with optional missing: warn, default: halt)
+
+    # Append a line unconditionally
+    - append: "FOO=bar"
+
+    # Replace if the regex matches, otherwise append — natural for env vars
+    - upsert: "^DATABASE_URL="
+      with: "DATABASE_URL=postgres:///myapp_$WORKTREE_BRANCH_SLUG"
+
   .env.local:
+    # Replace — full form (with optional missing: warn, default: halt)
     - match: "^DATABASE_URL=.*"
       with: "DATABASE_URL=postgres:///myapp_$WORKTREE_BRANCH_SLUG"
       missing: warn
 ```
 
+`replace` works as an alias for `edit` (use one or the other, not both).
+
 ### Environment variables
 
-The following env vars are available in `replace` values and `pre_setup` commands:
+The following env vars are available in `edit` values and `pre_setup` commands:
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -131,6 +141,8 @@ The following env vars are available in `replace` values and `pre_setup` command
 | `$WORKTREE_BRANCH` | `feat/new-login` | Branch name |
 | `$WORKTREE_BRANCH_SLUG` | `feat_new_login` | Branch name with non-alphanumeric chars replaced by `_` |
 | `$PORT`, ... | `4012` | Any port names listed under `ports` |
+
+If a referenced env var is unset, setup aborts.
 
 ## Global config
 
@@ -160,7 +172,12 @@ bin/setup  # Make sure it exits with code 0
 
 # Run tests
 rake
+
+# Run the CLI against the local working tree (from any cwd)
+bin/bonchi-dev <command>
 ```
+
+`bin/bonchi-dev` pins `BUNDLE_GEMFILE` to this project, so it uses the in-progress code instead of the installed `bonchi` gem — handy when testing changes from another directory.
 
 Using [mise](https://mise.jdx.dev/) for env-vars is recommended.
 

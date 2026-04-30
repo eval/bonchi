@@ -282,17 +282,21 @@ module Bonchi
       # ports:
       #   - PORT
 
-      # Regex replacements in copied files. Env vars ($VAR) are expanded.
-      # Short form:
-      # replace:
+      # Edits applied to files. Env vars ($VAR) are expanded.
+      # Three actions: regex replace, append, upsert (replace-or-append).
+      # edit:
       #   .env.local:
+      #     # Replace — short form
       #     - "^PORT=.*": "PORT=$PORT"
-      # Full form (with optional missing: warn, default: halt):
-      # replace:
-      #   .env.local:
-      #     - match: "^PORT=.*"
-      #       with: "PORT=$PORT"
+      #     # Replace — full form (with optional missing: warn, default: halt)
+      #     - match: "^DATABASE_URL=.*"
+      #       with: "DATABASE_URL=postgres:///myapp_$WORKTREE_BRANCH_SLUG"
       #       missing: warn
+      #     # Append a line unconditionally
+      #     - append: "FOO=bar"
+      #     # Replace if pattern matches, otherwise append
+      #     - upsert: "^DEBUG="
+      #       with: "DEBUG=1"
 
       # Commands to run before the setup command (port env vars are available).
       # pre_setup:

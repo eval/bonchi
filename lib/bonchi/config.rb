@@ -4,7 +4,7 @@ module Bonchi
   class Config
     include Colors
 
-    KNOWN_KEYS = %w[min_version copy link ports replace pre_setup setup].freeze
+    KNOWN_KEYS = %w[min_version copy link ports replace edit pre_setup setup].freeze
 
     attr_reader :copy, :link, :ports, :replace, :pre_setup, :setup
 
@@ -16,10 +16,14 @@ module Bonchi
 
       check_min_version!(data["min_version"]) if data["min_version"]
 
+      if data.key?("replace") && data.key?("edit")
+        abort "#{color(:red)}Error:#{reset} both 'edit' and 'replace' set in .worktree.yml — use 'edit' (preferred)"
+      end
+
       @copy = Array(data["copy"])
       @link = Array(data["link"])
       @ports = Array(data["ports"])
-      @replace = data["replace"] || {}
+      @replace = data["edit"] || data["replace"] || {}
       @pre_setup = Array(data["pre_setup"])
       @setup = data["setup"] || "bin/setup"
 
@@ -49,17 +53,21 @@ module Bonchi
 
     def validate!
       unless @replace.is_a?(Hash)
-        abort "#{color(:red)}Error:#{reset} 'replace' must be a mapping of filename to list of replacements"
+        abort "#{color(:red)}Error:#{reset} 'edit' must be a mapping of filename to list of edits"
       end
 
       @replace.each do |file, entries|
         unless entries.is_a?(Array)
-          abort "#{color(:red)}Error:#{reset} 'replace.#{file}' must be a list of replacements"
+          abort "#{color(:red)}Error:#{reset} 'edit.#{file}' must be a list of edits"
         end
 
         entries.each do |entry|
           unless entry.is_a?(Hash)
-            abort "#{color(:red)}Error:#{reset} each replacement in 'replace.#{file}' must be a mapping"
+            abort "#{color(:red)}Error:#{reset} each edit in 'edit.#{file}' must be a mapping"
+          end
+
+          if entry.key?("upsert") && !entry.key?("with")
+            abort "#{color(:red)}Error:#{reset} 'upsert' in 'edit.#{file}' requires a 'with' value"
           end
         end
       end

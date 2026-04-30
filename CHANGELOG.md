@@ -2,6 +2,9 @@
 
 ### ✨ Features
 
+- `edit` in `.worktree.yml` — alias for `replace` with two new entry shapes:
+  - `append: <line>` — unconditionally appends a line to the file
+  - `upsert: <pattern>` + `with: <line>` — replaces if pattern matches, otherwise appends
 - MFA required to publish this gem
 
 ## 0.6.0
