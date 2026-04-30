@@ -103,6 +103,17 @@ setup: mise exec -- bin/setup
 
 `bonchi create` auto-runs setup when `.worktree.yml` exists. Skip with `--no-setup`.
 
+If `.worktree.yml` exists in the linked worktree, it takes precedence over the main worktree's — useful for trying out config changes in a single worktree without touching main, or for committing a per-branch config. The main worktree's config is the fallback when no local config is present.
+
+To pin every new worktree to its own copy of the config (full isolation, no propagation of later edits in main), add it to `copy:`:
+
+```yaml
+copy:
+  - .worktree.yml
+```
+
+Default is to leave it out, so edits to main's `.worktree.yml` automatically apply to every subsequent `bonchi setup` run.
+
 ### Edit
 
 Use `edit` to modify files during setup. Three actions are available; entries run in order, so you can interleave them. Env vars (`$VAR`) are expanded in replacement values.

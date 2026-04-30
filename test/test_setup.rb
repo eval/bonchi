@@ -142,3 +142,84 @@ class TestSetupEdits < Minitest::Test
     end
   end
 end
+
+class TestSetupConfigSource < Minitest::Test
+  def setup
+    @tmpdir = Dir.mktmpdir
+    @main = File.join(@tmpdir, "main")
+    @linked = File.join(@tmpdir, "linked")
+    FileUtils.mkdir_p(@main)
+    FileUtils.mkdir_p(@linked)
+    @setup = Bonchi::Setup.allocate
+    @setup.instance_variable_set(:@worktree, @linked)
+    @setup.instance_variable_set(:@main_worktree, @main)
+    ENV["WORKTREE_ROOT"] = @tmpdir
+  end
+
+  def teardown
+    FileUtils.remove_entry(@tmpdir)
+    %w[WORKTREE_ROOT WORKTREE_BRANCH WORKTREE_BRANCH_SLUG WORKTREE_MAIN WORKTREE_LINKED].each { |k| ENV.delete(k) }
+  end
+
+  def write(dir, file, content)
+    path = File.join(dir, file)
+    FileUtils.mkdir_p(File.dirname(path))
+    File.write(path, content)
+  end
+
+  def silenced
+    out = $stdout
+    $stdout = StringIO.new
+    yield
+  ensure
+    $stdout = out
+  end
+
+  def run_setup(upto:)
+    Bonchi::Git.stub(:main_worktree, @main) do
+      Bonchi::Git.stub(:current_branch, "feat/x") do
+        silenced { @setup.run([], upto: upto) }
+      end
+    end
+  end
+
+  def test_linked_copy_takes_precedence_over_main
+    write(@main, "from-main.txt", "main\n")
+    write(@main, "from-linked.txt", "linked\n")
+    write(@main, ".worktree.yml", "copy:\n  - from-main.txt\n")
+    write(@linked, ".worktree.yml", "copy:\n  - from-linked.txt\n")
+
+    run_setup(upto: "copy")
+
+    refute File.exist?(File.join(@linked, "from-main.txt")), "main's copy entry should be ignored when linked config exists"
+    assert_equal "linked\n", File.read(File.join(@linked, "from-linked.txt"))
+  end
+
+  def test_linked_link_takes_precedence_over_main
+    write(@main, "from-main", "m\n")
+    write(@main, "from-linked", "l\n")
+    write(@main, ".worktree.yml", "link:\n  - from-main\n")
+    write(@linked, ".worktree.yml", "link:\n  - from-linked\n")
+
+    run_setup(upto: "link")
+
+    refute File.exist?(File.join(@linked, "from-main"))
+    assert File.symlink?(File.join(@linked, "from-linked"))
+    assert_equal File.join(@main, "from-linked"), File.readlink(File.join(@linked, "from-linked"))
+  end
+
+  def test_falls_back_to_main_when_linked_has_no_config
+    write(@main, "tool.toml", "m\n")
+    write(@main, ".worktree.yml", "copy:\n  - tool.toml\n")
+
+    run_setup(upto: "copy")
+
+    assert_equal "m\n", File.read(File.join(@linked, "tool.toml"))
+  end
+
+  def test_aborts_when_neither_worktree_has_config
+    assert_raises(SystemExit) do
+      run_setup(upto: "copy")
+    end
+  end
+end

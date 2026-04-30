@@ -7,6 +7,10 @@
   - `upsert: <pattern>` + `with: <line>` — replaces if pattern matches, otherwise appends
 - MFA required to publish this gem
 
+### ⚠️ Behavior changes
+
+- `.worktree.yml` in the linked worktree now drives **all** setup steps, not just the tail end. Previously `copy:` and `link:` always came from the main worktree's config while the rest came from the linked one if present — split that produced surprising results. Now: linked config wins entirely if present; main is the fallback. No effect unless you have a linked `.worktree.yml` whose `copy:`/`link:` differs from main's.
+
 ## 0.6.0
 
 ### ✨ Features
