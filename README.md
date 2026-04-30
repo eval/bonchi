@@ -172,7 +172,12 @@ bin/setup  # Make sure it exits with code 0
 
 # Run tests
 rake
+
+# Run the CLI against the local working tree (from any cwd)
+bin/bonchi-dev <command>
 ```
+
+`bin/bonchi-dev` pins `BUNDLE_GEMFILE` to this project, so it uses the in-progress code instead of the installed `bonchi` gem — handy when testing changes from another directory.
 
 Using [mise](https://mise.jdx.dev/) for env-vars is recommended.
 
