@@ -5,6 +5,7 @@
 - `edit` in `.worktree.yml` — alias for `replace` with two new entry shapes:
   - `append: <line>` — unconditionally appends a line to the file
   - `upsert: <pattern>` + `with: <line>` — replaces if pattern matches, otherwise appends
+- `bonchi pr` — set upstream tracking on the `pr-<n>` branch so `git pull` works out of the box
 - MFA required to publish this gem
 
 ### ⚠️ Behavior changes
