@@ -96,35 +96,62 @@ module Bonchi
         abort "#{color(:red)}Error:#{reset} #{file} not found" unless File.exist?(path)
 
         content = File.read(path)
-        entries.each do |entry|
-          if entry.is_a?(Hash) && entry.key?("match")
-            pattern = entry["match"]
-            replacement = entry["with"]
-            missing = entry["missing"] || "halt"
-          elsif entry.is_a?(Hash)
-            pattern, replacement = entry.first
-            missing = "halt"
-          else
-            abort "#{color(:red)}Error:#{reset} invalid replace entry in #{file}: #{entry.inspect}"
-          end
-
-          expanded = replacement.gsub(/\$(\w+)/) { ENV[$1] || abort("#{color(:red)}Error:#{reset} $#{$1} not set") }
-          regex = Regexp.new(pattern)
-
-          unless content.match?(regex)
-            if missing == "warn"
-              puts "#{color(:yellow)}Warning:#{reset} pattern #{pattern} not found in #{file}, skipping"
-              next
-            else
-              abort "#{color(:red)}Error:#{reset} pattern #{pattern} not found in #{file}"
-            end
-          end
-
-          content = content.gsub(regex, expanded)
-          puts "Replaced #{pattern} in #{file}"
-        end
+        entries.each { |entry| content = apply_edit(entry, content, file) }
         File.write(path, content)
       end
+    end
+
+    def apply_edit(entry, content, file)
+      unless entry.is_a?(Hash)
+        abort "#{color(:red)}Error:#{reset} invalid edit entry in #{file}: #{entry.inspect}"
+      end
+
+      if entry.key?("append")
+        line = expand(entry["append"])
+        puts "Appended to #{file}"
+        ensure_trailing_newline(content) + line + "\n"
+      elsif entry.key?("upsert")
+        unless entry.key?("with")
+          abort "#{color(:red)}Error:#{reset} 'upsert' requires 'with' in #{file}"
+        end
+        pattern = entry["upsert"]
+        replacement = expand(entry["with"])
+        regex = Regexp.new(pattern)
+        if content.match?(regex)
+          puts "Upserted #{pattern} in #{file} (matched)"
+          content.gsub(regex, replacement)
+        else
+          puts "Upserted #{pattern} in #{file} (appended)"
+          ensure_trailing_newline(content) + replacement + "\n"
+        end
+      elsif entry.key?("match")
+        replace(content, entry["match"], expand(entry["with"]), entry["missing"] || "halt", file)
+      else
+        pattern, replacement = entry.first
+        replace(content, pattern, expand(replacement), "halt", file)
+      end
+    end
+
+    def replace(content, pattern, replacement, missing, file)
+      regex = Regexp.new(pattern)
+      unless content.match?(regex)
+        if missing == "warn"
+          puts "#{color(:yellow)}Warning:#{reset} pattern #{pattern} not found in #{file}, skipping"
+          return content
+        else
+          abort "#{color(:red)}Error:#{reset} pattern #{pattern} not found in #{file}"
+        end
+      end
+      puts "Replaced #{pattern} in #{file}"
+      content.gsub(regex, replacement)
+    end
+
+    def expand(value)
+      value.to_s.gsub(/\$(\w+)/) { ENV[$1] || abort("#{color(:red)}Error:#{reset} $#{$1} not set") }
+    end
+
+    def ensure_trailing_newline(content)
+      content.empty? || content.end_with?("\n") ? content : content + "\n"
     end
 
     def run_pre_setup(commands)
