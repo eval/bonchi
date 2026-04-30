@@ -21,8 +21,13 @@ module Bonchi
         abort "#{color(:red)}Error:#{reset} already in the main worktree"
       end
 
-      config = Config.from_main_worktree
-      abort "#{color(:red)}Error:#{reset} .worktree.yml not found in main worktree" unless config
+      config = Config.from_worktree(@worktree)
+      if config
+        puts "Using .worktree.yml from linked worktree"
+      else
+        config = Config.from_main_worktree
+        abort "#{color(:red)}Error:#{reset} .worktree.yml not found in main worktree" unless config
+      end
 
       last_step = upto || STEPS.last
       run_steps = STEPS[0..STEPS.index(last_step)]
@@ -37,14 +42,6 @@ module Bonchi
 
       copy_files(config.copy) if run_steps.include?("copy")
       link_files(config.link) if run_steps.include?("link")
-
-      # Prefer linked worktree's .worktree.yml if it was copied or already exists
-      linked_config = Config.from_worktree(@worktree)
-      if linked_config
-        puts "Using .worktree.yml from linked worktree"
-        config = linked_config
-      end
-
       allocate_ports(config.ports) if run_steps.include?("ports") && config.ports.any?
       replace_in_files(config.replace) if run_steps.include?("replace") && config.replace.any?
       run_pre_setup(config.pre_setup) if run_steps.include?("pre_setup")
