@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## 0.7.0
+
 ### ✨ Features
 
 - `edit` in `.worktree.yml` — alias for `replace` with two new entry shapes:
