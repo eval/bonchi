@@ -114,6 +114,23 @@ copy:
 
 Default is to leave it out, so edits to main's `.worktree.yml` automatically apply to every subsequent `bonchi setup` run.
 
+`bonchi init` and `bonchi setup` resolve to the **git/worktree root** (`git rev-parse --show-toplevel`), so they work from any subdirectory. `init` writes `.worktree.yml` at the root and `setup` anchors all steps there — no need to `cd` to the top first. (`init` outside a git repo errors cleanly.)
+
+### Monorepos
+
+git cannot make a worktree of a subfolder, so a monorepo (e.g. root folders `server/` and `extension/`) becomes a **single** worktree containing all apps, with **one** `.worktree.yml` at the root. Because commands resolve to the git root, `bonchi setup` works the same from `foo/`, `foo/server/`, or anywhere below. Configure per-app concerns with prefixed paths and distinct port names:
+
+```yaml
+copy:
+  - server/.env
+  - extension/.env
+ports:
+  - SERVER_PORT
+  - EXTENSION_PORT
+# fan out per-app dev/setup from your own orchestrator
+setup: bin/worktree-dev
+```
+
 ### Edit
 
 Use `edit` to modify files during setup. Three actions are available; entries run in order, so you can interleave them. Env vars (`$VAR`) are expanded in replacement values.

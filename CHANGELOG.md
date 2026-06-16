@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### ✨ Features
+
+- `bonchi init` / `bonchi setup` resolve to the git/worktree root (`git rev-parse --show-toplevel`), so they work from any subdirectory — enabling monorepo layouts with a single root `.worktree.yml`. `init` outside a git repo now errors cleanly.
+
 ## 0.7.0
 
 ### ✨ Features

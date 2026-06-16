@@ -115,7 +115,9 @@ module Bonchi
       which ports to allocate, and what setup command to run.
     DESC
     def init
-      path = File.join(Dir.pwd, ".worktree.yml")
+      root = Git.toplevel
+      abort "Error: not inside a git repository" unless root
+      path = File.join(root, ".worktree.yml")
       if File.exist?(path)
         abort "Error: .worktree.yml already exists"
       end

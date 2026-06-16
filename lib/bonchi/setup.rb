@@ -6,7 +6,7 @@ module Bonchi
     include Colors
 
     def initialize(worktree: nil)
-      @worktree = worktree || Dir.pwd
+      @worktree = worktree || Git.toplevel || Dir.pwd
       @main_worktree = Git.main_worktree
     end
 

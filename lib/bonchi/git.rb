@@ -24,6 +24,11 @@ module Bonchi
       `git worktree list --porcelain`.lines.first.sub("worktree ", "").strip
     end
 
+    def toplevel
+      root = `git rev-parse --show-toplevel 2>/dev/null`.strip
+      root.empty? ? nil : root
+    end
+
     def worktree_list
       `git worktree list`.lines.map(&:strip).reject(&:empty?)
     end
