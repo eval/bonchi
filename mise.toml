@@ -4,3 +4,6 @@ ruby = "3.4"
 [env]
 _.path = ["bin"]
 PROJECT_ROOT = "{{config_root}}"
+
+# To prevent publishing in RubyGems use `gem_push=no rake release`
+gem_push="no"
