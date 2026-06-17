@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### 🐛 Fixes
+
+- Port allocation now skips browser-unsafe ports (Chromium's `kRestrictedPorts`, e.g. `4045`/`4190` in the default `4000..5000` range). Previously an allocated port could land on one of these, leaving the dev server reachable on the socket but blocked by the browser with `ERR_UNSAFE_PORT`.
+
 ## 0.7.0
 
 ### ✨ Features
