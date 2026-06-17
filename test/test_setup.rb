@@ -223,3 +223,72 @@ class TestSetupConfigSource < Minitest::Test
     end
   end
 end
+
+class TestSetupAnchoring < Minitest::Test
+  def test_anchors_worktree_to_git_toplevel_when_no_arg
+    Bonchi::Git.stub(:toplevel, "/repo/root") do
+      Bonchi::Git.stub(:main_worktree, "/repo/main") do
+        setup = Bonchi::Setup.new
+        assert_equal "/repo/root", setup.instance_variable_get(:@worktree)
+      end
+    end
+  end
+
+  def test_falls_back_to_pwd_when_not_in_git_repo
+    Bonchi::Git.stub(:toplevel, nil) do
+      Bonchi::Git.stub(:main_worktree, "/repo/main") do
+        setup = Bonchi::Setup.new
+        assert_equal Dir.pwd, setup.instance_variable_get(:@worktree)
+      end
+    end
+  end
+
+  def test_explicit_worktree_arg_overrides_toplevel
+    Bonchi::Git.stub(:toplevel, "/repo/root") do
+      Bonchi::Git.stub(:main_worktree, "/repo/main") do
+        setup = Bonchi::Setup.new(worktree: "/explicit/path")
+        assert_equal "/explicit/path", setup.instance_variable_get(:@worktree)
+      end
+    end
+  end
+end
+
+class TestInitAnchoring < Minitest::Test
+  def setup
+    @tmpdir = Dir.mktmpdir
+    @subdir = File.join(@tmpdir, "server")
+    FileUtils.mkdir_p(@subdir)
+    @cli = Bonchi::CLI.new
+  end
+
+  def teardown
+    FileUtils.remove_entry(@tmpdir)
+  end
+
+  def silenced
+    out = $stdout
+    $stdout = StringIO.new
+    yield
+  ensure
+    $stdout = out
+  end
+
+  def test_init_writes_config_at_git_toplevel_from_subdir
+    Bonchi::Git.stub(:toplevel, @tmpdir) do
+      Dir.chdir(@subdir) do
+        silenced { @cli.init }
+      end
+    end
+
+    assert File.exist?(File.join(@tmpdir, ".worktree.yml"))
+    refute File.exist?(File.join(@subdir, ".worktree.yml"))
+  end
+
+  def test_init_aborts_outside_git_repo
+    Bonchi::Git.stub(:toplevel, nil) do
+      assert_raises(SystemExit) do
+        silenced { @cli.init }
+      end
+    end
+  end
+end
