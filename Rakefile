@@ -14,7 +14,8 @@ end
 task default: :test
 
 if ENV["CI"]
-  # version.rb is written at CI which prevents guard_clean from passing.
+  # bundler-cache runs `bundle install` on the runner, which can touch
+  # Gemfile.lock and dirty the tree — preventing guard_clean from passing.
   # Redefine guard_clean to make it a noop.
   Rake::Task["release:guard_clean"].clear
   task "release:guard_clean"

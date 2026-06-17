@@ -148,7 +148,7 @@ module Bonchi
     end
 
     def ensure_trailing_newline(content)
-      content.empty? || content.end_with?("\n") ? content : content + "\n"
+      (content.empty? || content.end_with?("\n")) ? content : content + "\n"
     end
 
     def run_pre_setup(commands)
