@@ -228,6 +228,11 @@ module Bonchi
       path = Git.worktree_path_for(branch)
       abort "Error: No worktree found for branch: #{branch}" unless path
 
+      # Resolve and move to the main worktree first: once the worktree
+      # directory is gone, git commands run from inside it fail.
+      main = Git.main_worktree
+      Dir.chdir(main)
+
       Git.worktree_remove(path, force: force)
       puts "Removed worktree: #{path}"
 
@@ -242,7 +247,7 @@ module Bonchi
         end
       end
 
-      signal_cd(Git.main_worktree)
+      signal_cd(main)
     end
 
     def signal_cd(path)
