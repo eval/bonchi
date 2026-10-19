@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### ✨ Features
+
+- `bonchi list` shows worktrees in creation order (main first) instead of alphabetical path order.
+
 ## 0.8.0
 
 ### ✨ Features

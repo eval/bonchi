@@ -29,8 +29,23 @@ module Bonchi
       root.empty? ? nil : root
     end
 
+    # Worktrees in creation order: main first, then linked worktrees sorted
+    # by the time git registered them (`git worktree list` sorts by path).
     def worktree_list
-      `git worktree list`.lines.map(&:strip).reject(&:empty?)
+      main, *linked = `git worktree list`.lines.map(&:strip).reject(&:empty?)
+      return [] unless main
+
+      created = worktree_created_at
+      [main, *linked.sort_by { |line| created.fetch(line.split(/\s+/).first, Time.at(0)) }]
+    end
+
+    # Maps each linked worktree path to the mtime of its `gitdir` admin file,
+    # which git writes once when the worktree is added.
+    def worktree_created_at
+      common_dir = File.expand_path(`git rev-parse --git-common-dir`.strip)
+      Dir.glob(File.join(common_dir, "worktrees", "*", "gitdir")).to_h do |file|
+        [File.dirname(File.read(file).strip), File.mtime(file)]
+      end
     end
 
     def worktree_branches
