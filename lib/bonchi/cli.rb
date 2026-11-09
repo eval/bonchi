@@ -132,6 +132,19 @@ module Bonchi
       Setup.new.run(args, upto: options[:upto])
     end
 
+    desc "main", "Print the path of the main worktree"
+    long_desc <<~DESC
+      Print the absolute path of the main worktree. Works from any worktree
+      and any subdirectory. Useful in scripts: `cd "$(bonchi main)"`.
+
+      In zsh, `bonchi shellenv` also defines the dynamic named directory
+      `~[main]`, which expands to the same path and tab-completes.
+    DESC
+    def main
+      abort "Error: not inside a git repository" unless Git.toplevel
+      puts Git.main_worktree
+    end
+
     desc "list", "List all worktrees"
     long_desc <<~DESC
       List all worktrees. Non-main branches are annotated with:
@@ -332,7 +345,7 @@ module Bonchi
               COMPREPLY=()
               cur="${COMP_WORDS[COMP_CWORD]}"
               prev="${COMP_WORDS[COMP_CWORD-1]}"
-              commands="create switch sw pr setup list ls remove rm rmf rmrf prune shellenv help"
+              commands="create switch sw pr setup main list ls remove rm rmf rmrf prune shellenv help"
 
               if [ $COMP_CWORD -eq 1 ]; then
                   COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
@@ -361,6 +374,7 @@ module Bonchi
                   'sw:Switch to branch in worktree (-c to create)'
                   'pr:Checkout GitHub PR in worktree'
                   'setup:Run setup in current worktree'
+                  'main:Print the path of the main worktree'
                   'list:List all worktrees'
                   'ls:List all worktrees'
                   'remove:Remove a worktree (and merged branch)'
@@ -383,6 +397,32 @@ module Bonchi
               fi
           }
           compdef _bonchi_complete_zsh bonchi
+
+          # Dynamic named directory: ~[main] expands to the main worktree of
+          # the current repo, from any worktree or subdirectory. Tab-completes.
+          _bonchi_directory_name() {
+              emulate -L zsh
+              case "$1" in
+                  n)
+                      [[ "$2" == main ]] || return 1
+                      local d
+                      d=$(git rev-parse --git-common-dir 2>/dev/null) || return 1
+                      [[ -n "$d" ]] || return 1
+                      typeset -ga reply
+                      reply=("${d:a:h}")
+                      return 0
+                      ;;
+                  c)
+                      local expl
+                      _wanted dynamic-dirs expl 'bonchi directory' compadd -S ']' main
+                      ;;
+                  *)
+                      return 1
+                      ;;
+              esac
+          }
+          autoload -Uz add-zsh-hook
+          add-zsh-hook zsh_directory_name _bonchi_directory_name
       fi
     SHELL
   end

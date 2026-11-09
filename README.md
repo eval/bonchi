@@ -52,6 +52,7 @@ This gives you auto-cd (jumps into the worktree after create/switch/pr) and tab 
   bonchi rmrf BRANCH           # Force-remove a worktree and branch
   bonchi list                  # List all worktrees
   bonchi setup [-- ARGS...]    # Run setup in current worktree (ports, copy, pre_setup, setup cmd)
+  bonchi main                  # Print the path of the main worktree
   bonchi shellenv              # Output shell function for auto-cd + completions
   bonchi prune                 # Prune stale worktree admin files
   bonchi version               # Print version
@@ -61,6 +62,23 @@ This gives you auto-cd (jumps into the worktree after create/switch/pr) and tab 
 Run `bonchi help <command>` for detailed info on any command.
 
 Worktrees are created at `~/dev/worktrees/<repo>/<branch>`. Customize via global config or `WORKTREE_ROOT` env var (env var takes precedence).
+
+### Referring to the main worktree
+
+`bonchi main` prints the absolute path of the main worktree, from any worktree or subdirectory:
+
+```sh
+cd "$(bonchi main)"
+```
+
+In zsh, `bonchi shellenv` also defines the dynamic named directory `~[main]`. It resolves at use time, so it always points at the main worktree of the repo you are in, and it tab-completes like any other path:
+
+```sh
+bat ~[main]/plans/<TAB>
+cd ~[main]
+```
+
+Handy for files that live only in the main checkout, like untracked notes or plans.
 
 ## Project config
 

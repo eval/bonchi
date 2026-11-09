@@ -2,6 +2,11 @@
 
 ### ✨ Features
 
+- `bonchi main` — print the path of the main worktree, from any worktree or subdirectory.
+- zsh: `bonchi shellenv` defines the dynamic named directory `~[main]`, which expands to the main worktree of the current repo and tab-completes (`bat ~[main]/plans/<TAB>`).
+
+### ✨ Features
+
 - `bonchi list` shows worktrees in creation order (main first) instead of alphabetical path order.
 
 ## 0.8.0
