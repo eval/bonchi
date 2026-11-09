@@ -3,6 +3,7 @@
 ### ✨ Features
 
 - `bonchi main` — print the path of the main worktree, from any worktree or subdirectory.
+- `bonchi shellenv` keeps `$WORKTREE_MAIN` set to the main worktree of the current repo in interactive bash and zsh (`ls $WORKTREE_MAIN/plans/<TAB>`).
 - zsh: `bonchi shellenv` defines the dynamic named directory `~[main]`, which expands to the main worktree of the current repo and tab-completes (`bat ~[main]/plans/<TAB>`).
 
 ### ✨ Features

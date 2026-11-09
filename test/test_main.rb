@@ -71,4 +71,43 @@ class TestMain < Minitest::Test
     out = IO.popen(["zsh", "-f", "-c", script], &:read)
     assert_equal [@main, @main, "UNRESOLVED"], out.lines.map(&:chomp)
   end
+
+  def test_zsh_sets_worktree_main_on_cd
+    skip "zsh not available" unless system("which zsh > /dev/null 2>&1")
+
+    shellenv = capture { Bonchi::CLI.new.shellenv }
+    script = <<~ZSH
+      compdef() { :; }
+      #{shellenv}
+      cd #{File.join(@linked, "server")} && print -r -- "${WORKTREE_MAIN-UNSET}"
+      cd #{File.join(@main, "lib")} && print -r -- "${WORKTREE_MAIN-UNSET}"
+      cd #{@tmpdir} && print -r -- "${WORKTREE_MAIN-UNSET}"
+    ZSH
+
+    out = IO.popen(["zsh", "-f", "-c", script], &:read)
+    assert_equal [@main, @main, "UNSET"], out.lines.map(&:chomp)
+  end
+
+  # Bash refreshes $WORKTREE_MAIN via PROMPT_COMMAND. The test runs that hook
+  # by hand after each cd, as an interactive shell does before each prompt.
+  # Covers both the array form (bash >= 5.1) and the string form (macOS /bin/bash 3.2).
+  def test_bash_sets_worktree_main_via_prompt_command
+    bashes = %w[bash /bin/bash].select { |b| system("which #{b} > /dev/null 2>&1") }
+    skip "bash not available" if bashes.empty?
+
+    shellenv = capture { Bonchi::CLI.new.shellenv }
+    script = <<~BASH
+      PROMPT_COMMAND='echo other'
+      #{shellenv}
+      prompt() { local c; for c in "${PROMPT_COMMAND[@]}"; do eval "$c"; done; }
+      cd #{File.join(@linked, "server")} && prompt && echo "${WORKTREE_MAIN-UNSET}"
+      cd #{File.join(@main, "lib")} && prompt && echo "${WORKTREE_MAIN-UNSET}"
+      cd #{@tmpdir} && prompt && echo "${WORKTREE_MAIN-UNSET}"
+    BASH
+
+    bashes.each do |bash|
+      out = IO.popen([bash, "--norc", "--noprofile", "-c", script], &:read)
+      assert_equal ["other", @main, "other", @main, "other", "UNSET"], out.lines.map(&:chomp), bash
+    end
+  end
 end

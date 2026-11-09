@@ -137,8 +137,9 @@ module Bonchi
       Print the absolute path of the main worktree. Works from any worktree
       and any subdirectory. Useful in scripts: `cd "$(bonchi main)"`.
 
-      In zsh, `bonchi shellenv` also defines the dynamic named directory
-      `~[main]`, which expands to the same path and tab-completes.
+      `bonchi shellenv` (bash and zsh) keeps `$WORKTREE_MAIN` set to the same
+      path in the interactive shell. In zsh it also defines the dynamic named
+      directory `~[main]`, which expands to that path and tab-completes.
     DESC
     def main
       abort "Error: not inside a git repository" unless Git.toplevel
@@ -338,6 +339,25 @@ module Bonchi
           return $exit_code
       }
 
+      # Print the main worktree of the current repo (same source as `bonchi main`).
+      # Fails outside a git repo.
+      _bonchi_main_worktree() {
+          local line
+          line=$(git worktree list --porcelain 2>/dev/null | head -n 1)
+          [ -n "$line" ] || return 1
+          printf '%s\n' "${line#worktree }"
+      }
+
+      # Keep $WORKTREE_MAIN pointing at the main worktree of the current repo,
+      # or unset it outside a git repo.
+      _bonchi_set_worktree_main() {
+          if WORKTREE_MAIN=$(_bonchi_main_worktree); then
+              export WORKTREE_MAIN
+          else
+              unset WORKTREE_MAIN
+          fi
+      }
+
       # Bash completion
       if [ -n "$BASH_VERSION" ]; then
           _bonchi_complete() {
@@ -362,6 +382,20 @@ module Bonchi
               esac
           }
           complete -F _bonchi_complete bonchi
+
+          # $WORKTREE_MAIN: refreshed before each prompt. Bash >= 5.1 allows
+          # PROMPT_COMMAND to be an array; older versions take a string.
+          case "${PROMPT_COMMAND[*]}" in
+              *_bonchi_set_worktree_main*) ;;
+              *)
+                  if [ "${BASH_VERSINFO[0]}" -gt 5 ] || { [ "${BASH_VERSINFO[0]}" -eq 5 ] && [ "${BASH_VERSINFO[1]}" -ge 1 ]; }; then
+                      PROMPT_COMMAND+=(_bonchi_set_worktree_main)
+                  else
+                      PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_bonchi_set_worktree_main"
+                  fi
+                  ;;
+          esac
+          _bonchi_set_worktree_main
       fi
 
       # Zsh completion
@@ -406,10 +440,9 @@ module Bonchi
                   n)
                       [[ "$2" == main ]] || return 1
                       local d
-                      d=$(git rev-parse --git-common-dir 2>/dev/null) || return 1
-                      [[ -n "$d" ]] || return 1
+                      d=$(_bonchi_main_worktree) || return 1
                       typeset -ga reply
-                      reply=("${d:a:h}")
+                      reply=("$d")
                       return 0
                       ;;
                   c)
@@ -423,6 +456,10 @@ module Bonchi
           }
           autoload -Uz add-zsh-hook
           add-zsh-hook zsh_directory_name _bonchi_directory_name
+
+          # $WORKTREE_MAIN: refreshed on every directory change.
+          add-zsh-hook chpwd _bonchi_set_worktree_main
+          _bonchi_set_worktree_main
       fi
     SHELL
   end

@@ -71,6 +71,12 @@ Worktrees are created at `~/dev/worktrees/<repo>/<branch>`. Customize via global
 cd "$(bonchi main)"
 ```
 
+With `bonchi shellenv` loaded (bash and zsh), `$WORKTREE_MAIN` holds the same path in your interactive shell. Bash refreshes it before each prompt, zsh on every `cd`. Tab completion works through it:
+
+```sh
+ls $WORKTREE_MAIN/plans/<TAB>
+```
+
 In zsh, `bonchi shellenv` also defines the dynamic named directory `~[main]`. It resolves at use time, so it always points at the main worktree of the repo you are in, and it tab-completes like any other path:
 
 ```sh
@@ -78,7 +84,7 @@ bat ~[main]/plans/<TAB>
 cd ~[main]
 ```
 
-Handy for files that live only in the main checkout, like untracked notes or plans.
+Handy for files that live only in the main checkout, like untracked notes or plans. In scripts, prefer `"$(bonchi main)"`, which does not depend on `shellenv`.
 
 ## Project config
 
